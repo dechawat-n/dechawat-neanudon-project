@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    <title>สมัครสมาชิก</title>
+    <link rel="stylesheet" href="../src/output.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="bg-white w-full h-20 fixed top-0 z-50 shadow-md">
+        <div class="flex justify-between item-center h-20 mx-auto">
+            <!-- logo -->
+            <div class=" flex justify-between items-center top-0 ml-5 gap-3">
+                <a href="home-th.html" ><img src="../images/logo.png" alt="logo" class="w-16 h-auto"></a>
+                <a href="home-th.html" class="text-semibold text-red-600 font-bold text-4xl">T.A.SOCCER</a>
+            </div>
+            <!-- mid nav -->
+            <div class="flex space-x-6 text-gray-700 font-medium">
+                <ul class="flex justify-between items-center gap-7 text-lg">
+                    <li><a href="home-th.html" class="hover:text-red-600">หน้าหลัก</a></li>
+                    <li><a href="#" class="hover:text-red-600">เกี่ยวกับเรา</a></li>
+                    <li><a href="#" class="hover:text-red-600">กิจกรรม</a></li>
+                    <li><a href="#" class="hover:text-red-600">แกลอรี่</a></li>
+                    <li><a href="#" class="hover:text-red-600">ติดต่อเรา</a></li>
+                </ul>
+            </div>
+            <!-- right login button -->
+            <div class="flex justify-center items-center" style="margin-left: 100px;">
+                <a href="#" class="bg-red-600 rounded-full mr-6 ml-14 px-6 py-2 hover:bg-red-500 text-white hidden">เข้าสู่ระบบ</a>
+                <!--dummy--><div class="bg-white rounded-full mr-6 ml-30.5 px-6 py-2 text-white "></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-center items-center h-screen bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('../images/test.jpg');">
+        <!-- register container -->
+        <div class="p-6 shadow-lg bg-white rounded-md w-full max-w-md">
+            <h1 class="text-3xl block text-center font-semibold text-gray-700">สมัครสมาชิก</h1>
+            <!-- email -->
+            <div class="mt-5">
+                <label for="email" class="block text-base mb-2 text-gray-700">อีเมล</label>
+                <input type="text" id="password" class="border border-gray-300 w-full text-base px-2 py-1 focus:outline-none focus:ring-0 focus:border-gray-600 rounded-md" placeholder="Email">
+            </div>
+            <!-- phoneNum -->
+            <div class="mt-3">
+                <label for="username" class="block text-base mb-2 text-gray-700">เบอร์โทรศัพท์</label>
+                <input type="tel" id="phone" class="border border-gray-300 w-full text-base px-2 py-1 focus:outline-none focus:ring-0 focus:border-gray-600 rounded-md" placeholder="Phone number">
+            </div>
+            <!-- username -->
+            <div class="mt-3">
+                <label for="username" class="block text-base mb-2 text-gray-700">ชื่อผู้ใช้</label>
+                <input type="text" id="username" class="border border-gray-300 w-full text-base px-2 py-1 focus:outline-none focus:ring-0 focus:border-gray-600 rounded-md" placeholder="Username">
+            </div>
+            <!-- password container-->
+            <div class="mt-3">
+                <label for="password" class="block text-base mb-2 text-gray-700">รหัสผ่าน</label>
+                <!-- password -->
+                <input type="password" id="passwordField" class="border border-gray-300 w-full text-base px-2 py-1 focus:outline-none focus:ring-0 focus:border-gray-600 rounded-md" placeholder="Password">
+                <!-- confirm password -->
+                <div class="mt-3">
+                    <input type="password" id="confirmPasswordField" class="border border-gray-300 w-full text-base px-2 py-1 focus:outline-none focus:ring-0 focus:border-gray-600 rounded-md" placeholder="Comfirm your password">
+                </div>
+            </div>
+            <!-- term and condition checkbox -->
+            <div class="mt-3">
+                <input type="checkbox" class="relative top-0.5">
+                <label class="text-gray-700">ฉันยอมรับ</label>
+                <a href="https://kku.world/mainpage" class="text-blue-500 hover:underline">ข้อกำหนดการเป็นสมาชิก</a>
+            </div>
+            <!-- register button -->
+            <a href="#"><div class="p-1 mt-3 flex justify-center items-center border-gray-300 text-white bg-red-500 hover:bg-red-600 rounded-md">
+                สมัครสมาชิก
+            </div></a>
+            <!-- เป็นสมาชิกแล้ว? -->
+            <div class="mt-2 flex justify-center" style="gap: 2px;">
+                <p class="text-gray-700">เป็นสมาชิกแล้ว?</p>
+                <a href="login-th.html" class="text-red-600 hover:underline">เข้าสู่ระบบ</a>
+            </div>
+            
+            <!-- accept term and condition script (gu tum mai pen) -->
+        </div>
+    </div>
+</body>
+</html>
