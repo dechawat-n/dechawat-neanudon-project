@@ -79,12 +79,15 @@ function updateBookingDisplay() {
 
 async function initializeBooking() {
     const urlParams = new URLSearchParams(window.location.search);
-    fieldId = urlParams.get('field_id');
+    fieldId = urlParams.get('field_id').replace('\\', '');  // เพิ่ม replace เพื่อลบ backslash
     
     if (!fieldId) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/fields/?id=${fieldId}`);
+        const response = await fetch(`/api/fields/?id=${fieldId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch field data');
+        }
         const fieldData = await response.json();
         const field = fieldData[0];
         
@@ -97,15 +100,42 @@ async function initializeBooking() {
     }
 }
 
+document.addEventListener('DOMContentLoaded', async function() {
+    const dateInput = document.getElementById('date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
+    dateInput.value = today;
+    
+    // เรียก initializeBooking ก่อน
+    await initializeBooking();
+    
+    // จากนั้นเช็คสถานะการจอง
+    await checkAvailability();
+    
+    // เพิ่ม event listener สำหรับการเปลี่ยนวันที่
+    dateInput.addEventListener('change', async function() {
+        await checkAvailability();
+    });
+    
+    // เช็คทุก 30 วินาที
+    setInterval(async () => {
+        await checkAvailability();
+    }, 30000);
+});
+
 async function checkAvailability() {
     const date = document.getElementById('date').value;
-    if (!date) {
-        alert('กรุณาเลือกวันที่');
-        return;
-    }
+    if (!date || !fieldId) return;
     
     try {
-        // Reset all buttons to default state
+        const response = await fetch(`/api/check-availability/?date=${date}&field_id=${fieldId}`);
+        if (!response.ok) {
+            throw new Error('Failed to check availability');
+        }
+        
+        const data = await response.json();
+        
+        // รีเซ็ตสถานะปุ่มทั้งหมด
         const buttons = document.querySelectorAll('button[data-start]');
         buttons.forEach(button => {
             button.classList.remove('bg-yellow-500', 'bg-red-500');
@@ -113,36 +143,18 @@ async function checkAvailability() {
             button.disabled = false;
         });
         
-        // Fetch availability data
-        const response = await fetch(`${API_BASE_URL}/api/check-availability/?date=${date}&field_id=${fieldId}`);
-        if (!response.ok) {
-            throw new Error('Failed to check availability');
-        }
-        
-        const data = await response.json();
-        console.log('Availability data:', data);
-        
-        // Update button states based on server response
-        data.time_slots.forEach(slot => {
-            const button = document.querySelector(`button[data-start="${slot.start}"]`);
-            if (button) {
-                if (slot.status === 'reserved') {
+        // อัพเดทสถานะปุ่มตามข้อมูลจาก server
+        if (data.time_slots) {
+            data.time_slots.forEach(slot => {
+                const buttonSelector = `button[data-start="${slot.start}"]`;
+                const button = document.querySelector(buttonSelector);
+                if (button && slot.status === 'reserved') {
                     button.classList.remove('bg-green-500', 'bg-yellow-500');
                     button.classList.add('bg-red-500');
                     button.disabled = true;
                 }
-            }
-        });
-        
-        // Reset selection if current slots are now reserved
-        selectedTimes = selectedTimes.filter(time => {
-            const button = time.button;
-            return !button.classList.contains('bg-red-500');
-        });
-        
-        // Update display
-        updateBookingDisplay();
-        
+            });
+        }
     } catch (error) {
         console.error('Error checking availability:', error);
     }
@@ -201,14 +213,14 @@ async function submitBooking(e) {
 
         if (result.status === 'success') {
             // เปลี่ยนสีปุ่มที่ถูกจองเป็นสีแดง
-            for (let time of selectedTimes) {
+            selectedTimes.forEach(time => {
                 const button = time.button;
                 if (button) {
                     button.classList.remove('bg-yellow-500', 'bg-green-500');
                     button.classList.add('bg-red-500');
                     button.disabled = true;
                 }
-            }
+            });
 
             // รีเซ็ตฟอร์มและการแสดงผล
             document.getElementById('reserverName').value = '';

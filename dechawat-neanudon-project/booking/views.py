@@ -26,30 +26,32 @@ def check_availability(request):
     date_str = request.GET.get('date')
     field_id = request.GET.get('field_id')
     
+    print(f"Checking availability for date: {date_str}, field_id: {field_id}")  # Debug print
+    
     if not date_str or not field_id:
         return JsonResponse({'error': 'Missing required parameters'}, status=400)
     
     try:
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
         
-        # Get all reservations for the selected date and field
+        # Get reservations
         reservations = Reservation.objects.filter(
             field_id=field_id,
             reservation_date=date,
             status='booked'
         )
-
-        # Create time slots (14:00 - 23:00)
+        
+        print(f"Found {reservations.count()} reservations")  # Debug print
+        
+        # Create time slots
         time_slots = []
-        for hour in range(14, 24):  # Stop at 23
+        for hour in range(14, 24):
             start_time = f"{hour:02d}:00"
-            end_time = f"{(hour + 1) % 24:02d}:00"  # Use modulo for midnight
+            end_time = f"{(hour + 1) % 24:02d}:00"
             
-            # แปลงเวลาเป็น time objects
             start_time_obj = datetime.strptime(start_time, '%H:%M').time()
             end_time_obj = datetime.strptime(end_time, '%H:%M').time()
             
-            # Check if this time slot is reserved
             is_reserved = reservations.filter(
                 start_time__lte=end_time_obj,
                 end_time__gt=start_time_obj
@@ -61,7 +63,7 @@ def check_availability(request):
                 'status': 'reserved' if is_reserved else 'available'
             })
         
-        print(f"Time slots for {date}: {time_slots}")  # Debug print
+        print(f"Time slots: {time_slots}")  # Debug print
         return JsonResponse({'time_slots': time_slots})
         
     except Exception as e:
@@ -121,11 +123,16 @@ def home_view(request):
     return render(request, 'home-th.html')
 
 def reservation_view(request):
-    field_id = request.GET.get('field_id')
+    field_id = request.GET.get('field_id', '').strip()  # เพิ่ม strip() เพื่อลบ whitespace และ backslash
     if field_id:
-        field = Field.objects.get(id=field_id)
-        return render(request, 'reservation/reservation.html', {'field': field})  # แก้ path
-    return render(request, 'reservation/reservation.html')  # แก้ path
+        try:
+            field_id = int(field_id)  # แปลงเป็นตัวเลข
+            field = Field.objects.get(id=field_id)
+            return render(request, 'reservation/reservation.html', {'field': field})
+        except (ValueError, Field.DoesNotExist):
+            # จัดการกรณีที่ field_id ไม่ถูกต้อง
+            return render(request, 'reservation/reservation.html')
+    return render(request, 'reservation/reservation.html')
 
 def pre_reservation_view(request):
     return render(request, 'reservation/pre-reservation.html')  # แก้ path

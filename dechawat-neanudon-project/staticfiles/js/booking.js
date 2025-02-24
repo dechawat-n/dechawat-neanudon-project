@@ -3,7 +3,7 @@ let fieldId = null;
 let pricePerHour = 0;
 
 // เพิ่ม base URL สำหรับ API
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = '';
 
 document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('date');
@@ -84,14 +84,17 @@ async function initializeBooking() {
     if (!fieldId) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/fields/?id=${fieldId}`);
+        const response = await fetch(`/api/fields/?id=${fieldId}`);  // เพิ่ม / ข้างหน้า
+        if (!response.ok) {
+            throw new Error('Failed to fetch field data');
+        }
         const fieldData = await response.json();
-        const field = fieldData[0];
-        
-        document.querySelector('h2').textContent = `${field.name} สำหรับ ${field.capacity} คน`;
-        pricePerHour = field.price_per_hour;
-        
-        await checkAvailability();
+        if (fieldData && fieldData.length > 0) {
+            const field = fieldData[0];
+            document.querySelector('h2').textContent = `${field.name} สำหรับ ${field.capacity} คน`;
+            pricePerHour = field.price_per_hour;
+            await checkAvailability();
+        }
     } catch (error) {
         console.error('Error:', error);
     }
@@ -99,13 +102,10 @@ async function initializeBooking() {
 
 async function checkAvailability() {
     const date = document.getElementById('date').value;
-    if (!date) {
-        alert('กรุณาเลือกวันที่');
-        return;
-    }
+    if (!date || !fieldId) return;
     
     try {
-        // Reset all buttons to default state
+        // Reset buttons
         const buttons = document.querySelectorAll('button[data-start]');
         buttons.forEach(button => {
             button.classList.remove('bg-yellow-500', 'bg-red-500');
@@ -113,8 +113,7 @@ async function checkAvailability() {
             button.disabled = false;
         });
         
-        // Fetch availability data
-        const response = await fetch(`${API_BASE_URL}/api/check-availability/?date=${date}&field_id=${fieldId}`);
+        const response = await fetch(`/api/check-availability/?date=${date}&field_id=${fieldId}`);
         if (!response.ok) {
             throw new Error('Failed to check availability');
         }
@@ -122,25 +121,18 @@ async function checkAvailability() {
         const data = await response.json();
         console.log('Availability data:', data);
         
-        // Update button states based on server response
-        data.time_slots.forEach(slot => {
-            const button = document.querySelector(`button[data-start="${slot.start}"]`);
-            if (button) {
-                if (slot.status === 'reserved') {
+        if (data.time_slots) {
+            data.time_slots.forEach(slot => {
+                const button = document.querySelector(`button[data-start="${slot.start}"]`);
+                if (button && slot.status === 'reserved') {
                     button.classList.remove('bg-green-500', 'bg-yellow-500');
                     button.classList.add('bg-red-500');
                     button.disabled = true;
                 }
-            }
-        });
+            });
+        }
         
-        // Reset selection if current slots are now reserved
-        selectedTimes = selectedTimes.filter(time => {
-            const button = time.button;
-            return !button.classList.contains('bg-red-500');
-        });
-        
-        // Update display
+        // Update booking display
         updateBookingDisplay();
         
     } catch (error) {
