@@ -120,12 +120,12 @@ def create_reservation(request):
 def home_view(request):
     return render(request, 'home-th.html')
 
-def pre_reservation_view(request):
-    return render(request, 'pre-reservation.html')
-
 def reservation_view(request):
     field_id = request.GET.get('field_id')
     if field_id:
         field = Field.objects.get(id=field_id)
-        return render(request, 'reservation.html', {'field': field})
-    return render(request, 'reservation.html')
+        return render(request, 'reservation/reservation.html', {'field': field})  # แก้ path
+    return render(request, 'reservation/reservation.html')  # แก้ path
+
+def pre_reservation_view(request):
+    return render(request, 'reservation/pre-reservation.html')  # แก้ path
