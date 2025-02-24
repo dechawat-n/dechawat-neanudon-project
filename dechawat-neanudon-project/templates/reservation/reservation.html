@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% csrf_token %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google" content="notranslate">
@@ -9,9 +10,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="../src/output.css">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-    {% csrf_token %}
+    <script>
+        window.onload = function() {
+            // ดึง field_id จาก URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const fieldId = urlParams.get('field_id');
+            
+            // กำหนดข้อมูลสนาม
+            const fields = {
+                1: { name: 'สนามใหญ่', capacity: 22 },
+                2: { name: 'สนามกลาง', capacity: 14 },
+                3: { name: 'สนามเล็ก', capacity: 10 }
+            };
+            
+            if(fieldId && fields[fieldId]) {
+                const field = fields[fieldId];
+                document.querySelector('h2').textContent = 
+                    `${field.name} สำหรับ ${field.capacity} คน`;
+            }
+        };
+    </script>
 </head>
 <body>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
     <!-- Navbar -->
     <div class="bg-white w-full h-20 fixed top-0 z-50 shadow-md">
         <div class="flex justify-between item-center h-20 mx-auto">
@@ -190,8 +211,9 @@
         
             <!-- right column -->
             <div class="bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-xl mb-6 text-center text-semibold">สนาม XXXXX สำหรับ x คน</h2>
+                <h2 class="text-xl mb-6 text-center text-semibold">{{ field.name }} สำหรับ {{ field.capacity }} คน</h2>
                 
+                <form id="bookingForm" onsubmit="event.preventDefault();"></form>
                 <div class="space-y-4">
                     <!-- reserver's name -->
                     <div>
@@ -213,7 +235,9 @@
                         <label class="block text-gray-700 mb-2">รวม:</label>
                         <div id="totalPrice" class="text-lg font-semibold text-red-600">-</div>
                     </div>
-                    <button onclick="submitBooking()" 
+                    <button 
+                        type="button"
+                        onclick="submitBooking(event)" 
                         id="bookingButton" 
                         class="w-full p-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed" 
                         disabled>

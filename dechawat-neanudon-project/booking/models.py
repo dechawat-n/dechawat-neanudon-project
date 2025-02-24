@@ -2,6 +2,7 @@
 from django.db import models
 
 class Field(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     capacity = models.IntegerField()  # เพิ่ม field capacity
     price_per_hour = models.DecimalField(max_digits=10, decimal_places=2)
