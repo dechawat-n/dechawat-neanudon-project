@@ -1,0 +1,228 @@
+{% extends 'public/base.html' %}
+
+{% block title %}จองสนามใหญ่{% endblock %}
+
+{% block content %}
+{% load static %}
+    <!-- main container -->
+    <div class="flex justify-center items-center h-[calc(100vh-5rem)] mt-20 bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url({% static 'images/test.jpg' %});">
+        <!-- sub container -->
+        <div class="mx-auto grid grid-cols-2 gap-40">
+            <!-- left column -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <!-- date box -->
+                <div class="flex justify-center mb-6 bg-gray-300">
+                    <input type="date" id="date">
+                </div>
+                <!-- booking status table -->
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr>
+                        <th class="py-2 px-4 bg-gray-200 px-25">เวลา</th>
+                        <th class="py-2 px-4 bg-gray-200 px-25">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">14.00 - 15.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '14.00', '15.00')" 
+                                    data-start="14.00"
+                                    data-end="15.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">15.00 - 16.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '15.00', '16.00')" 
+                                    data-start="15.00"
+                                    data-end="16.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">16.00 - 17.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '16.00', '17.00')" 
+                                    data-start="16.00"
+                                    data-end="17.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">17.00 - 18.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '17.00', '18.00')" 
+                                    data-start="17.00"
+                                    data-end="18.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">18.00 - 19.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '18.00', '19.00')" 
+                                    data-start="18.00"
+                                    data-end="19.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">19.00 - 20.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '19.00', '20.00')" 
+                                    data-start="19.00"
+                                    data-end="20.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">20.00 - 21.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '20.00', '21.00')" 
+                                    data-start="20.00"
+                                    data-end="21.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">21.00 - 22.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '21.00', '22.00')" 
+                                    data-start="21.00"
+                                    data-end="22.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">22.00 - 23.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '22.00', '23.00')" 
+                                    data-start="22.00"
+                                    data-end="23.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">23.00 - 24.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '23.00', '24.00')" 
+                                    data-start="23.00"
+                                    data-end="24.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                            ></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+        
+                <div class="mt-4 flex gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-green-500"></div>
+                        <span>ว่าง</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-red-500"></div>
+                        <span>จองแล้ว</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-yellow-500"></div>
+                        <span>กำลังจอง</span>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- right column -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl mb-6 text-center text-semibold">สนามใหญ่ สำหรับ 9 คน</h2>
+                
+                <div class="space-y-4">
+                    <!-- reserver's name -->
+                    <div>
+                        <label class="block text-gray-700 mb-2">ชื่อผู้จอง</label>
+                        <input type="text" class="w-full p-2 border rounded-md" id="reserverName">
+                    </div>
+                    <!-- reserver's phone number -->
+                    <div>
+                        <label class="block text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                        <input type="tel" class="w-full p-2 border rounded-md" id="reseverPhone">
+                    </div>
+            
+                    <div>
+                        <label class="block text-gray-700 mb-2">เวลาที่จะจอง</label>
+                        <div id="selectedTimeRange" class="text-lg font-semibold text-gray-900">-</div>
+                    </div>
+            
+                    <div>
+                        <label class="block text-gray-700 mb-2">รวม:</label>
+                        <div id="totalPrice" class="text-lg font-semibold text-red-600">-</div>
+                    </div>
+                    <button onclick="submitBooking(event)" 
+                    id="bookingButton" 
+                    class="w-full p-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed" 
+                    {% if not loggedin %}disabled{% endif %}>
+                    {% if loggedin %}จอง{% else %}กรุณาเข้าสู่ระบบ{% endif %}
+                    </button>
+                    </div></a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    {% load static %}
+    <!-- เพิ่ม CSRF Token สำหรับส่ง request -->
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <script src="{% static 'booking/booking.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // กำหนด field_id ตามประเภทสนาม
+            const urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.has('field_id')) {
+                let fieldId = null;
+                const currentPath = window.location.pathname;
+                
+                if (currentPath.includes('big-reservation')) {
+                    fieldId = "1";  // สนามใหญ่
+                } else if (currentPath.includes('medium-reservation')) {
+                    fieldId = "2";  // สนามกลาง
+                } else if (currentPath.includes('small-reservation')) {
+                    fieldId = "3";  // สนามเล็ก
+                }
+                
+                if (fieldId !== null) {
+                    window.history.replaceState(null, '', `?field_id=${fieldId}`);
+                }
+            }
+        });
+    </script>
+{% endblock %}

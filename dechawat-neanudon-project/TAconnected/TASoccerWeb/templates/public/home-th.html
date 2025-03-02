@@ -1,0 +1,19 @@
+{% extends 'public/base.html' %}
+{% block title %}หน้าแรก{% endblock %}
+{% block content %}
+{% load static %}
+    <!-- Hero section -->
+    <section class="h-screen bg-cover bg-center relative" style="background-image: url('{% static 'images/DJI_0314.JPG' %}');">
+        <div class="absolute inset-0 bg-black opacity-40"></div>
+        <div class="relative text-center text-white flex flex-col items-center justify-center h-full">
+            <h1 class="text-5xl font-bold mb-4">สนามหญ้าเทียมในตำนาน</h1>
+            <p class="text-lg mb-6">สนามหญ้าเทียมแห่งแรกในบุรีรัมย์ since 1990</p>
+            <!-- จองเลย! -->
+            {% if not loggedin %}
+            <a href="{% url 'pre-reserve' %}" class="bg-red-600 text-white px-6 py-3 text-lg rounded-full hover:bg-red-500 transition">จองเลย!</a>
+            {% endif %}
+        </div>
+    </section>
+    {% endblock %}
+</body>
+</html>

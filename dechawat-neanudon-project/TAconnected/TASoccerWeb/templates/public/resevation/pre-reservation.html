@@ -1,0 +1,35 @@
+{% extends 'public/base.html' %}
+{% block title %}เลือกสนาม{% endblock %}
+
+{% block content %}
+{% load static %}
+
+    <!-- container -->
+    <div class="px-20 mt-20 flex p-20 justify-between items-center h-[calc(100vh-5rem)]" style="background-color: gray;">
+        <!-- big -->
+        <div >
+            <span class="text-white">สนามใหญ่</span>
+            <a href="{% url 'bigreserve'%}"><div class="w-85 h-130 shadow-lg bg-white rounded-md max-w-md text-gray-700">
+                <img src="{% static 'images/bigfield.png' %}" alt="bigfield" class="rounded-lg shadow-lg">
+            </div></a>
+        </div>   
+        <!-- medium -->
+        <div>
+            <span class="text-white">สนามกลาง</span>
+            <a href="{% url 'mediumreserve'%}"><div class="w-75 h-110 shadow-lg bg-white rounded-md max-w-md text-gray-700">
+                <img src="{% static 'images/medfield.png' %}" alt="mediumfield" class="rounded-lg shadow-lg">
+            </div></a>
+            
+        </div>
+        <!-- smol -->
+        <div>
+            <span class="text-white">สนามเล็ก</span>
+            <a href="{% url 'smallreserve'%}"><div class="w-60 h-90 shadow-lg bg-white rounded-md max-w-md text-gray-700">
+                <img src="{% static 'images/smallfield.png' %}" alt="smallfield" class="rounded-lg shadow-lg">
+            </div></a>
+            
+        </div>
+    </div>
+    {% endblock %}
+</body>
+</html>

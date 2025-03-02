@@ -1,0 +1,32 @@
+{% extends 'public/base.html' %}
+{% block title %}เกี่ยวกับเรา{% endblock %}
+{% load static %}
+{% block content %}
+<div class="flex justify-center items-center h-screen bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url({% static 'images/test.jpg' %});">
+    <!-- login container -->
+    <div class="p-6 shadow-lg bg-white rounded-md w-full max-w-6xl text-gray-700 mt-20">
+        <h1 class="text-3xl block text-center font-semibold">เกี่ยวกับเรา</h1>
+        <div class="flex justify-center mt-5">
+            <video width="600" autoplay loop muted class="rounded-md shadow-lg">
+                <source src="{% static 'videos/aboutus_vid.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        
+        <p class="text-lg block text-center font-semibold mt-5">
+            สนามหญ้าเทียมแห่งแรกในจังหวัดบุรีรัมย์ เปิดให้บริการมายาวนานกว่า 10 ปี 
+            พร้อมมอบประสบการณ์การเล่นฟุตบอลที่ยอดเยี่ยมให้กับทุกคน 
+            ด้วยบรรยากาศที่โปร่งโล่งสบาย และพื้นที่กว้างขวาง เหมาะสำหรับการจัดกิจกรรมต่างๆ 
+            ไม่ว่าจะเป็นการแข่งขันฟุตบอล, กิจกรรมสันทนาการ หรืออีเวนต์พิเศษ หากสนใจ
+            <a href="{% url 'pre-reserve' %}" class="text-red-600 hover:underline">จองเลย!</a>
+        </p>
+        <!-- contact us -->
+        <div class="flex justify-center mt-3">
+            <p class="text-lg">สอบถามข้อมูลเพิ่มเติม <a href="#" class="text-red-600 hover:underline">ติดต่อเรา</a></p>
+        </div>
+        
+    </div>
+</div>
+
+        
+{% endblock %}

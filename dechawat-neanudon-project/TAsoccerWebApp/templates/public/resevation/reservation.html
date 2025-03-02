@@ -1,0 +1,118 @@
+{% extends 'public/base.html' %}
+{% block title %}จองสนาม{% endblock %}
+
+{% block content %}
+{% load static %}   
+    <!-- main container -->
+    <div class="mt-20 flex justify-between items-center bg-gray-600 h-[calc(100vh-5rem)]">
+        <!-- sub container -->
+        <div class="mx-auto grid grid-cols-2 gap-40">
+            <!-- left column -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <!-- date box -->
+                <div class="flex justify-center mb-6 bg-gray-300">
+                    <input type="date" id="date">
+                </div>
+                <!-- booking status table -->
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr>
+                        <th class="py-2 px-4 bg-gray-200 px-25">เวลา</th>
+                        <th class="py-2 px-4 bg-gray-200 px-25">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">14.00 - 15.00</td>
+                            <td class="py-2 px-4"><button>N/A</button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">15.00 - 16.00</td>
+                            <td class="py-2 px-4"><button>N/A</button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">16.00 - 17.00</td>
+                            <td class="py-2 px-4"><button>N/A</button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">17.00 - 18.00</td>
+                            <td class="py-2 px-4"><button>N/A</button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">18.00 - 19.00</td>
+                            <td class="py-2 px-4"><button>N/A</button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">19.00 - 20.00</td>
+                            <td class="py-2 px-4"><button>N/A</button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">20.00 - 21.00</td>
+                            <td class="py-2 px-4"><button>N/A</button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">21.00 - 22.00</td>
+                            <td class="py-2 px-4"><button>N/A</button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">22.00 - 23.00</td>
+                            <td class="py-2 px-4"><button>N/A</button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">23.00 - 24.00</td>
+                            <td class="py-2 px-4"><button>N/A</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+        
+                <div class="mt-4 flex gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-green-500"></div>
+                        <span>ว่าง</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-red-500"></div>
+                        <span>จองแล้ว</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-yellow-500"></div>
+                        <span>กำลังจอง</span>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- right column -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl mb-6 text-center text-semibold">สนาม XXXXX สำหรับ x คน</h2>
+                
+                <div class="space-y-4">
+                    <!-- reserver's name -->
+                    <div>
+                        <label class="block text-gray-700 mb-2">ชื่อผู้จอง</label>
+                        <input type="text" class="w-full p-2 border rounded-md" id="reserverName">
+                    </div>
+                    <!-- reserver's phone number -->
+                    <div>
+                        <label class="block text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                        <input type="tel" class="w-full p-2 border rounded-md" id="reseverPhone">
+                    </div>
+            
+                    <div>
+                        <label class="block text-gray-700 mb-2">เวลาที่จะจอง</label>
+                        <div class="text-lg">XX.XX - XX.XX (x ชั่วโมง)</div>
+                    </div>
+            
+                    <div>
+                        <label class="block text-gray-700 mb-2">รวม: XXX บาท</label>
+                    </div>
+                    <!-- จอง button -->
+                    <a href="#"><div class="p-1 mt-3 flex justify-center items-center border-gray-300 text-white bg-red-500 hover:bg-red-600 rounded-md">
+                        จอง
+                    </div></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+</body>
+</html>

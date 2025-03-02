@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    {% load static %}
+    <title>{% block title %}T.A.SOCCER{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'output.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="bg-white w-full h-20 top-0 z-50 fixed shadow-md">
+        <div class="flex justify-between items-center h-full mx-auto px-3">
+            <!-- logo -->
+            <div class="flex justify-between items-center gap-3">
+                <a href="{% url 'home-th' %}"><img src="{% static 'images/logo.png' %}" alt="logo" class="w-16 h-auto"></a>
+                <a href="{% url 'home-th' %}" class="text-semibold text-red-600 font-bold text-4xl">T.A.SOCCER</a>
+            </div>
+            <!-- mid nav -->
+            <div class="hidden md:flex text-gray-700 text-lg font-medium">
+                <ul class="flex items-center gap-7">
+                    <li><a href="{% url 'home-th' %}" class="hover:text-red-600">หน้าหลัก</a></li>
+                    <li><a href="#" class="hover:text-red-600">เกี่ยวกับเรา</a></li>
+                    <li><a href="#" class="hover:text-red-600">กิจกรรม</a></li>
+                    <li><a href="#" class="hover:text-red-600">แกลอรี่</a></li>
+                    <li><a href="#" class="hover:text-red-600">ติดต่อเรา</a></li>
+                </ul>
+            </div>
+            <!-- right button -->
+            <div class="flex items-center" style="margin-left: 5.8rem;">
+                <a href="{% url 'pre-reserve' %}" class="bg-red-600 rounded-full mr-5 px-6 py-2 mr-6 hover:bg-red-500 text-white">จองสนาม</a>
+                <!-- dropdown -->
+                <div class="relative">
+                    <button id="dropdownButton" class="rounded-md hover:bg-gray-200 relative left-10" style="cursor: pointer; top: 2px;">
+                        <span class="material-symbols-outlined" style="font-size: 40px;">
+                            account_circle
+                        </span>
+                    </button>
+                    <!-- dropdown menu -->
+                    <div id="dropdownMenu" class="absolute hidden group-hover:block mt-5 w-60 bg-white rounded-md shadow-lg" style="right: 0;">
+
+                        <!-- Center the items -->
+                        <div class="md:hidden flex flex-col mt-10" style="gap: 10px;">
+                            <a href="{% url 'home-th' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">หน้าหลัก</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">เกี่ยวกับเรา</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">กิจกรรม</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">แกลอรี่</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">ติดต่อเรา</a>
+                        </div>
+                        
+                        <hr class="my-1">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">การจองของฉัน</a>
+                        <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-700">ออกจากระบบ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        <!-- Content block -->
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
+        {% block extra_js %}
+        <script>
+            const button = document.getElementById("dropdownButton");
+            const menu = document.getElementById("dropdownMenu");
+    
+            button.addEventListener("click", () => {
+                menu.classList.toggle("hidden");
+            });
+    
+            // Close when clicking outside
+            document.addEventListener("click", (event) => {
+                if (!button.contains(event.target) && !menu.contains(event.target)) {
+                    menu.classList.add("hidden");
+                }
+            });
+        </script>
+        {% endblock %}
+</body>
+</html>

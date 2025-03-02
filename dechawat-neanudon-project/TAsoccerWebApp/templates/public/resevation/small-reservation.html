@@ -1,0 +1,303 @@
+{% extends 'public/base.html' %}
+
+{% block title %}จองสนามเล็ก{% endblock %}
+
+{% block content %}
+{% load static %}
+    <!-- main container -->
+    <div class="flex justify-center items-center h-[calc(100vh-5rem)] mt-20 bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url({% static 'images/test.jpg' %});">
+        <!-- sub container -->
+        <div class="mx-auto grid grid-cols-2 gap-40">
+            <!-- left column -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <!-- date box -->
+                <div class="flex justify-center mb-6 bg-gray-300">
+                    <input type="date" id="date">
+                </div>
+                <!-- booking status table -->
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr>
+                        <th class="py-2 px-4 bg-gray-200 px-25">เวลา</th>
+                        <th class="py-2 px-4 bg-gray-200 px-25">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">14.00 - 15.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '14.00', '15.00')" 
+                                    data-start="14.00"
+                                    data-end="15.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">15.00 - 16.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '15.00', '16.00')" 
+                                    data-start="15.00"
+                                    data-end="16.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">16.00 - 17.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '16.00', '17.00')" 
+                                    data-start="16.00"
+                                    data-end="17.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">17.00 - 18.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '17.00', '18.00')" 
+                                    data-start="17.00"
+                                    data-end="18.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">18.00 - 19.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '18.00', '19.00')" 
+                                    data-start="18.00"
+                                    data-end="19.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">19.00 - 20.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '19.00', '20.00')" 
+                                    data-start="19.00"
+                                    data-end="20.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">20.00 - 21.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '20.00', '21.00')" 
+                                    data-start="20.00"
+                                    data-end="21.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">21.00 - 22.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '21.00', '22.00')" 
+                                    data-start="21.00"
+                                    data-end="22.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button>
+                            </td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">22.00 - 23.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '22.00', '23.00')" 
+                                    data-start="22.00"
+                                    data-end="23.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                                ></button></td>
+                        </tr>
+                        <tr class="border-b text-center">
+                            <td class="py-2 px-4">23.00 - 24.00</td>
+                            <td class="py-2 px-4">
+                                <button 
+                                    onclick="selectTimeSlot(this, '23.00', '24.00')" 
+                                    data-start="23.00"
+                                    data-end="24.00"
+                                    class="w-4 h-4 bg-green-500 hover:opacity-80 transition-all"
+                                    style="cursor: pointer;"
+                            ></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+        
+                <div class="mt-4 flex gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-green-500"></div>
+                        <span>ว่าง</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-red-500"></div>
+                        <span>จองแล้ว</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-yellow-500"></div>
+                        <span>กำลังจอง</span>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- right column -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl mb-6 text-center text-semibold">สนามเล็ก สำหรับ 5 คน</h2>
+                
+                <div class="space-y-4">
+                    <!-- reserver's name -->
+                    <div>
+                        <label class="block text-gray-700 mb-2">ชื่อผู้จอง</label>
+                        <input type="text" class="w-full p-2 border rounded-md" id="reserverName">
+                    </div>
+                    <!-- reserver's phone number -->
+                    <div>
+                        <label class="block text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                        <input type="tel" class="w-full p-2 border rounded-md" id="reseverPhone">
+                    </div>
+            
+                    <div>
+                        <label class="block text-gray-700 mb-2">เวลาที่จะจอง</label>
+                        <div id="selectedTimeRange" class="text-lg font-semibold text-gray-900">-</div>
+                    </div>
+            
+                    <div>
+                        <label class="block text-gray-700 mb-2">รวม:</label>
+                        <div id="totalPrice" class="text-lg font-semibold text-red-600">-</div>
+                    </div>
+                    <button onclick="submitBooking()" 
+                        id="bookingButton" 
+                        class="w-full p-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed" 
+                        disabled>
+                        จอง
+                    </div></a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        let selectedTimes = [];
+        const pricePerHour = 500;
+
+        function selectTimeSlot(button, startTime, endTime) {
+            // ถ้าปุ่มถูก disable หรือจองแล้ว ให้ return
+            if (button.disabled || button.classList.contains('bg-red-500')) {
+                return;
+            }
+
+            // สลับสีปุ่ม
+            if (button.classList.contains('bg-green-500')) {
+                // เลือกเวลา
+                button.classList.remove('bg-green-500');
+                button.classList.add('bg-yellow-500');
+                selectedTimes.push({
+                    start: startTime,
+                    end: endTime,
+                    button: button
+                });
+            } else if (button.classList.contains('bg-yellow-500')) {
+                // ยกเลิกการเลือก
+                button.classList.remove('bg-yellow-500');
+                button.classList.add('bg-green-500');
+                selectedTimes = selectedTimes.filter(t => t.start !== startTime);
+            }
+
+            updateBookingDisplay();
+        }
+
+        function updateBookingDisplay() {
+            const timeRangeElement = document.getElementById('selectedTimeRange');
+            const totalPriceElement = document.getElementById('totalPrice');
+            const bookingButton = document.getElementById('bookingButton');
+
+            if (selectedTimes.length > 0) {
+                // เรียงลำดับเวลา
+                selectedTimes.sort((a, b) => parseFloat(a.start) - parseFloat(b.start));
+
+                // หาเวลาเริ่มต้นและสิ้นสุดรวม
+                const firstTime = selectedTimes[0];
+                const lastTime = selectedTimes[selectedTimes.length - 1];
+                
+                // แสดงช่วงเวลา
+                timeRangeElement.textContent = 
+                    `${firstTime.start} - ${lastTime.end} (${selectedTimes.length} ชั่วโมง)`;
+
+                // คำนวณราคารวม
+                const totalPrice = selectedTimes.length * pricePerHour;
+                totalPriceElement.textContent = `${totalPrice.toLocaleString()} บาท`;
+
+                // เปิดปุ่มจอง
+                bookingButton.disabled = false;
+            } else {
+                // รีเซ็ตการแสดงผล
+                timeRangeElement.textContent = '-';
+                totalPriceElement.textContent = '-';
+                bookingButton.disabled = true;
+            }
+        }
+
+        async function submitBooking() {
+            const customerName = document.getElementById('reserverName').value;
+            const phone = document.getElementById('reseverPhone').value;
+
+            if (!customerName || !phone || selectedTimes.length === 0) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+
+            try {
+                // เปลี่ยนทุกปุ่มที่เลือกเป็นสีแดง
+                selectedTimes.forEach(time => {
+                    const button = time.button;
+                    button.classList.remove('bg-yellow-500');
+                    button.classList.add('bg-red-500');
+                    button.disabled = true;
+                });
+
+                alert('จองสำเร็จ!');
+
+                // รีเซ็ตฟอร์ม
+                document.getElementById('reserverName').value = '';
+                document.getElementById('reseverPhone').value = '';
+                selectedTimes = [];
+                updateBookingDisplay();
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('เกิดข้อผิดพลาดในการจอง');
+            }
+        }
+
+        // เพิ่ม Event Listener เมื่อโหลดหน้า
+        document.addEventListener('DOMContentLoaded', () => {
+            // ตั้งค่าวันที่เริ่มต้นเป็นวันนี้
+            const dateInput = document.getElementById('date');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+            dateInput.min = today;
+        });
+    </script>
+{% endblock %}

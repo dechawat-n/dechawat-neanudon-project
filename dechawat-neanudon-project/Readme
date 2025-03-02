@@ -1,0 +1,16 @@
+1. cd to TAconnected
+
+2. Activate environment:
+    ```
+    TASoccerEnv\Scripts\activate
+    ```
+
+3. Install requirements:
+    ```
+    pip install -r requirements.txt
+    ```
+
+4. Deactivate environment:
+    ```
+    deactivate
+    ```
