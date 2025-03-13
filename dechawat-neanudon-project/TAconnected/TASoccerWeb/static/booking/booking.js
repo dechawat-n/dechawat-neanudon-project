@@ -11,8 +11,9 @@ document.addEventListener('DOMContentLoaded', function() {
     dateInput.setAttribute('min', today);
     dateInput.value = today;
     
-    // Check availability when date changes
+    // Add resetTimeSlots() when date changes
     dateInput.addEventListener('change', async function() {
+        resetTimeSlots(); // Reset selections when date changes
         await checkAvailability();
     });
     
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check availability every 30 seconds
     setInterval(checkAvailability, 30000);
 });
+
 
 function resetTimeSlots() {
     selectedTimes = [];
@@ -39,21 +41,42 @@ function selectTimeSlot(button, startTime, endTime) {
         return;
     }
 
+    console.log(`selectTimeSlot: ได้รับเวลา ${startTime}-${endTime}`);
+    
+    const allButtons = document.querySelectorAll('button[data-start]');
+    const selectedButtons = Array.from(allButtons).filter(btn => 
+        btn.classList.contains('bg-yellow-500') && btn !== button
+    );
+    
     if (button.classList.contains('bg-green-500')) {
         button.classList.remove('bg-green-500');
         button.classList.add('bg-yellow-500');
-        selectedTimes.push({
-            start: startTime,
-            end: endTime,
-            button: button
-        });
+        
+        const isDuplicate = selectedTimes.some(time => 
+            time.start === startTime && time.end === endTime
+        );
+        
+        if (!isDuplicate) {
+            selectedTimes.push({
+                start: startTime,
+                end: endTime,
+                button: button
+            });
+            
+            console.log(`เพิ่มช่วงเวลา ${startTime}-${endTime} ในรายการเลือก`);
+        }
     } else if (button.classList.contains('bg-yellow-500')) {
         button.classList.remove('bg-yellow-500');
         button.classList.add('bg-green-500');
-        selectedTimes = selectedTimes.filter(t => t.start !== startTime);
+        
+        selectedTimes = selectedTimes.filter(t => !(t.start === startTime && t.end === endTime));
+        
+        console.log(`ลบช่วงเวลา ${startTime}-${endTime} ออกจากรายการเลือก`);
     }
 
     updateBookingDisplay();
+    
+    console.log("เวลาที่เลือกทั้งหมด:", selectedTimes.map(t => `${t.start}-${t.end}`).join(", "));
 }
 
 function updateBookingDisplay() {
@@ -62,10 +85,14 @@ function updateBookingDisplay() {
     const bookingButton = document.getElementById('bookingButton');
 
     if (selectedTimes.length > 0) {
-        // เรียงลำดับตามเวลา
-        selectedTimes.sort((a, b) => parseFloat(a.start) - parseFloat(b.start));
+        selectedTimes.sort((a, b) => {
+            const aStart = parseFloat(a.start.replace(':', '.'));
+            const bStart = parseFloat(b.start.replace(':', '.'));
+            return aStart - bStart;
+        });
         
-        // แยกช่วงเวลาที่ต่อเนื่องกัน
+        console.log("เรียงลำดับช่วงเวลาที่เลือก:", selectedTimes.map(t => `${t.start}-${t.end}`).join(", "));
+
         let timeRanges = [];
         let currentRange = {
             start: selectedTimes[0].start,
@@ -73,26 +100,29 @@ function updateBookingDisplay() {
         };
         
         for (let i = 1; i < selectedTimes.length; i++) {
-            const currentTime = parseFloat(selectedTimes[i].start);
-            const previousEnd = parseFloat(currentRange.end);
+            const currentTime = parseFloat(selectedTimes[i].start.replace(':', '.'));
+            const previousEnd = parseFloat(currentRange.end.replace(':', '.'));
             
-            // ถ้าเวลาเริ่มต้นปัจจุบันเท่ากับเวลาสิ้นสุดของช่วงก่อนหน้า ให้ขยายช่วงเวลาปัจจุบัน
-            if (currentTime === previousEnd) {
+            console.log(`ตรวจสอบความต่อเนื่อง: ${currentTime} vs ${previousEnd}`);
+            
+            if (Math.abs(currentTime - previousEnd) < 0.001) { 
                 currentRange.end = selectedTimes[i].end;
+                console.log(`ช่วงเวลาต่อเนื่อง ขยายเป็น ${currentRange.start}-${currentRange.end}`);
             } else {
-                // ถ้าไม่ต่อเนื่อง ให้บันทึกช่วงเวลาเก่าและเริ่มช่วงเวลาใหม่
-                timeRanges.push(currentRange);
+
+                timeRanges.push({...currentRange}); 
                 currentRange = {
                     start: selectedTimes[i].start,
                     end: selectedTimes[i].end
                 };
+                console.log(`ช่วงเวลาไม่ต่อเนื่อง เริ่มช่วงใหม่ ${currentRange.start}-${currentRange.end}`);
             }
         }
         
-        // เพิ่มช่วงเวลาสุดท้าย
-        timeRanges.push(currentRange);
+        timeRanges.push({...currentRange});
         
-        // สร้างข้อความแสดงช่วงเวลา
+        console.log("ช่วงเวลาที่รวมแล้ว:", timeRanges.map(range => `${range.start}-${range.end}`).join(", "));
+        
         const timeRangeText = timeRanges.map(range => `${range.start} - ${range.end}`).join(' และ ');
         
         timeRangeElement.textContent = `${timeRangeText} (${selectedTimes.length} ชั่วโมง)`;
@@ -102,135 +132,88 @@ function updateBookingDisplay() {
     } else {
         timeRangeElement.textContent = '-';
         totalPriceElement.textContent = '-';
-        bookingButton.disabled = true;
+        bookingButton.disabled = !document.getElementById('reserverName')?.value || 
+                                !document.getElementById('reseverPhone')?.value || 
+                                document.getElementById('bookingButton').hasAttribute('data-login-required');
     }
 }
-
-async function initializeBooking() {
-    // ดึง field_id จาก URL ถ้ามี
-    const urlParams = new URLSearchParams(window.location.search);
-    let fieldIdFromUrl = urlParams.get('field_id');
-    
-    // ถ้าไม่มี field_id ใน URL ให้กำหนดตามหน้าที่กำลังเปิดอยู่
-    if (!fieldIdFromUrl) {
-        const currentPath = window.location.pathname;
-        if (currentPath.includes('big-reservation')) {
-            fieldId = "1";  // สนามใหญ่
-        } else if (currentPath.includes('medium-reservation')) {
-            fieldId = "2";  // สนามกลาง
-        } else if (currentPath.includes('small-reservation')) {
-            fieldId = "3";  // สนามเล็ก
-        }
-        
-        // ถ้ากำหนดค่า fieldId ได้ ให้เพิ่มเข้าไปใน URL
-        if (fieldId) {
-            window.history.replaceState(null, '', `?field_id=${fieldId}`);
-        }
-    } else {
-        // ถ้ามี field_id ใน URL ให้ใช้ค่านั้น
-        fieldId = fieldIdFromUrl.replace('\\', '');
-    }
-    
-    // ถ้าไม่มี field_id ให้ออกจากฟังก์ชัน
-    if (!fieldId) return;
-
-    try {
-        const response = await fetch(`/api/fields/?id=${fieldId}`);
-        if (!response.ok) {
-            throw new Error('Failed to fetch field data');
-        }
-        const fieldData = await response.json();
-        const field = fieldData[0];
-        
-        document.querySelector('h2').textContent = `${field.name} สำหรับ ${field.capacity} คน`;
-        pricePerHour = field.price_per_hour;
-        
-        await checkAvailability();
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', async function() {
-    const dateInput = document.getElementById('date');
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.setAttribute('min', today);
-    dateInput.value = today;
-    
-    // เรียก initializeBooking ก่อน
-    await initializeBooking();
-    
-    // จากนั้นเช็คสถานะการจอง
-    await checkAvailability();
-    
-    // เพิ่ม event listener สำหรับการเปลี่ยนวันที่
-    dateInput.addEventListener('change', async function() {
-        await checkAvailability();
-    });
-    
-    // เช็คทุก 30 วินาที
-    setInterval(async () => {
-        await checkAvailability();
-    }, 30000);
-});
 
 async function checkAvailability() {
     const date = document.getElementById('date').value;
     if (!date || !fieldId) return;
     
     try {
-        const response = await fetch(`/api/check-availability/?date=${date}&field_id=${fieldId}`);
+        const timestamp = new Date().getTime();
+        const random = Math.floor(Math.random() * 10000);
+        const response = await fetch(`/api/check-availability/?date=${date}&field_id=${fieldId}&t=${timestamp}&r=${random}`);
+        
         if (!response.ok) {
             throw new Error('Failed to check availability');
         }
         
         const data = await response.json();
         
-        // เก็บ ID ของช่วงเวลาที่ถูกเลือกไว้
-        const selectedTimeSlotIds = selectedTimes.map(time => 
-            `${time.start}-${time.end}`
-        );
+        console.log("Time slots from API:", data.time_slots);
         
-        // รีเซ็ตเฉพาะปุ่มที่ไม่ได้เลือกไว้
+        const currentButtonStates = {};
+        document.querySelectorAll('button[data-start]').forEach(button => {
+            const startTime = button.getAttribute('data-start');
+            const endTime = button.getAttribute('data-end');
+            currentButtonStates[`${startTime}-${endTime}`] = {
+                element: button,
+                isSelected: selectedTimes.some(t => t.start === startTime && t.end === endTime),
+                isDisabled: button.disabled,
+                classes: Array.from(button.classList)
+            };
+        });
+        
+        const slotStatusMap = {};
+        if (data.time_slots) {
+            data.time_slots.forEach(slot => {
+                let slotStart = slot.start;
+                let slotEnd = slot.end === "00.00" ? "24.00" : slot.end;
+                slotStatusMap[`${slotStart}-${slotEnd}`] = slot.status;
+            });
+        }
+        
+        console.log("Current slot status from API:", slotStatusMap);
+        
         const buttons = document.querySelectorAll('button[data-start]');
         buttons.forEach(button => {
             const startTime = button.getAttribute('data-start');
             const endTime = button.getAttribute('data-end');
-            const timeSlotId = `${startTime}-${endTime}`;
+            const slotKey = `${startTime}-${endTime}`;
             
-            // ตรวจสอบว่าปุ่มนี้อยู่ใน selectedTimes หรือไม่
-            const isSelected = selectedTimeSlotIds.includes(timeSlotId);
+            const isUserSelected = selectedTimes.some(t => t.start === startTime && t.end === endTime);
             
-            if (!isSelected) {
-                // รีเซ็ตเฉพาะปุ่มที่ไม่ได้เลือกไว้
-                button.classList.remove('bg-yellow-500', 'bg-red-500');
-                button.classList.add('bg-green-500');
-                button.disabled = false;
+            button.classList.remove('bg-yellow-500', 'bg-red-500');
+            button.classList.add('bg-green-500');
+            button.disabled = false;
+            
+            if (slotStatusMap[slotKey]) {
+                const status = slotStatusMap[slotKey];
+                
+                console.log(`Syncing button ${slotKey} - API status: ${status}, User selected: ${isUserSelected}`);
+                
+                if (status === 'confirmed') {
+                    button.classList.remove('bg-green-500', 'bg-yellow-500');
+                    button.classList.add('bg-red-500');
+                    button.disabled = true;
+                } else if (status === 'pending') {
+                    button.classList.remove('bg-green-500', 'bg-red-500');
+                    button.classList.add('bg-yellow-500');
+                    button.disabled = true;
+                }
             }
         });
         
-        // อัพเดทสถานะปุ่มตามข้อมูลจาก server
-        if (data.time_slots) {
-            data.time_slots.forEach(slot => {
-                const buttonSelector = `button[data-start="${slot.start}"][data-end="${slot.end}"]`;
-                const button = document.querySelector(buttonSelector);
-                
-                // เปลี่ยนเป็นสีแดงเฉพาะถ้าปุ่มนี้ไม่ได้ถูกเลือกไว้
-                if (button && slot.status === 'reserved') {
-                    const startTime = button.getAttribute('data-start');
-                    const endTime = button.getAttribute('data-end');
-                    const timeSlotId = `${startTime}-${endTime}`;
-                    
-                    const isSelected = selectedTimeSlotIds.includes(timeSlotId);
-                    
-                    if (!isSelected) {
-                        button.classList.remove('bg-green-500', 'bg-yellow-500');
-                        button.classList.add('bg-red-500');
-                        button.disabled = true;
-                    }
-                }
-            });
-        }
+        selectedTimes = selectedTimes.filter(time => {
+            const button = document.querySelector(`button[data-start="${time.start}"][data-end="${time.end}"]`);
+            return button && !button.disabled;
+        });
+        
+        updateBookingDisplay();
+        
     } catch (error) {
         console.error('Error checking availability:', error);
     }
@@ -240,6 +223,12 @@ async function submitBooking(e) {
     if (e) {
         e.preventDefault();
         e.stopPropagation();
+    }
+    
+    const bookingButton = document.getElementById('bookingButton');
+    if (bookingButton.disabled) {
+        alert('กรุณาเข้าสู่ระบบก่อนทำการจอง');
+        return;
     }
     
     const customerName = document.getElementById('reserverName').value;
@@ -257,31 +246,76 @@ async function submitBooking(e) {
     }
 
     try {
-        // เรียงลำดับเวลาที่เลือกตามลำดับ
-        const sortedSelectedTimes = selectedTimes.sort((a, b) => 
-            parseFloat(a.start) - parseFloat(b.start)
+        const bookedTimes = [...selectedTimes].map(t => ({...t}));
+        console.log("ช่วงเวลาที่ต้องการจอง:", bookedTimes.map(t => `${t.start}-${t.end}`).join(", "));
+        
+        const sortedTimes = [...selectedTimes].sort((a, b) => {
+            const aStart = parseFloat(a.start.replace(':', '.'));
+            const bStart = parseFloat(b.start.replace(':', '.'));
+            return aStart - bStart;
+        });
+        
+        let consecutiveGroups = [];
+        if (sortedTimes.length > 0) {
+            let currentGroup = [sortedTimes[0]];
+            
+            for (let i = 1; i < sortedTimes.length; i++) {
+                const currentSlot = sortedTimes[i];
+                const lastSlotInGroup = currentGroup[currentGroup.length - 1];
+                
+                const currentStart = parseFloat(currentSlot.start.replace(':', '.'));
+                const lastEnd = parseFloat(lastSlotInGroup.end.replace(':', '.'));
+                
+                console.log(`Comparing: Current start ${currentStart} vs Last end ${lastEnd}`);
+                
+                if (Math.abs(currentStart - lastEnd) < 0.01) { 
+                    currentGroup.push(currentSlot);
+                } else {
+                    consecutiveGroups.push([...currentGroup]);
+                    currentGroup = [currentSlot];
+                }
+            }
+            
+            consecutiveGroups.push([...currentGroup]);
+        }
+        
+        console.log("กลุ่มเวลาที่จะจอง:", 
+            consecutiveGroups.map(group => 
+                `${group[0].start}-${group[group.length-1].end}`
+            ).join(", ")
         );
         
-        let failedBookings = [];
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        let failedBookings = [];
+        let successfulBookings = [];
         
-        // เก็บ ID ของ time slots ที่ถูกเลือก
-        const selectedTimeSlotIds = selectedTimes.map(slot => 
-            `${slot.start}-${slot.end}`
-        );
+        let successfulSlots = [];
         
-        // จองเฉพาะช่วงเวลาที่เลือกเท่านั้น
-        for (const timeSlot of sortedSelectedTimes) {
+        for (const group of consecutiveGroups) {
+            const startTime = group[0].start;
+            let endTime = group[group.length - 1].end;
+            
+            const apiEndTime = endTime === '24.00' ? '00.00' : endTime;
+            
+            const groupHours = group.length;
+            
+            console.log(`กำลังจอง: ${startTime}-${endTime}, ${groupHours} ชั่วโมง`);
+
             const bookingData = {
                 field_id: parseInt(fieldId),
                 date: date,
-                start_time: timeSlot.start.replace(':', '.'),
-                end_time: timeSlot.end.replace(':', '.'),
+                start_time: startTime.replace(':', '.'),
+                end_time: apiEndTime.replace(':', '.'),
                 customer_name: customerName,
                 phone: phone,
-                total_price: pricePerHour,
-                // เพิ่มการส่ง ID ของช่วงเวลาที่เลือก
-                selected_time_slots: selectedTimeSlotIds
+                total_price: pricePerHour * groupHours,
+                time_slots: group.map(slot => {
+                    let apiSlotEnd = slot.end === '24.00' ? '00.00' : slot.end;
+                    return { 
+                        start: slot.start, 
+                        end: apiSlotEnd 
+                    };
+                })
             };
             
             try {
@@ -295,34 +329,41 @@ async function submitBooking(e) {
                     body: JSON.stringify(bookingData)
                 });
                 
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        alert('กรุณาเข้าสู่ระบบก่อนทำการจอง');
+                        window.location.href = '/login/';
+                        return;
+                    }
+                    
+                    const result = await response.json();
+                    throw new Error(result.message || 'การจองไม่สำเร็จ');
+                }
+                
                 const result = await response.json();
                 
-                if (response.ok && result.status === 'success') {
-                    console.log(`Booking successful for ${timeSlot.start}-${timeSlot.end}`);
+                if (result.status === 'success') {
+                    console.log(`จองสำเร็จสำหรับ ${startTime}-${endTime}`);
+                    successfulBookings.push(`${startTime}-${endTime}`);
                     
-                    // เปลี่ยนสีปุ่มที่จองสำเร็จเป็นสีแดง
-                    if (timeSlot.button) {
-                        timeSlot.button.classList.remove('bg-yellow-500', 'bg-green-500');
-                        timeSlot.button.classList.add('bg-red-500');
-                        timeSlot.button.disabled = true;
-                    }
-                } else {
-                    console.error('Booking failed:', result);
-                    failedBookings.push({
-                        timeSlot: `${timeSlot.start}-${timeSlot.end}`,
-                        reason: result.message || 'การจองไม่สำเร็จ'
+                    group.forEach(slot => {
+                        successfulSlots.push({
+                            start: slot.start,
+                            end: slot.end
+                        });
                     });
+                } else {
+                    throw new Error(result.message || 'การจองไม่สำเร็จ');
                 }
             } catch (error) {
-                console.error(`Error booking ${timeSlot.start}-${timeSlot.end}:`, error);
+                console.error(`เกิดข้อผิดพลาดในการจอง ${startTime}-${endTime}:`, error);
                 failedBookings.push({
-                    timeSlot: `${timeSlot.start}-${timeSlot.end}`,
+                    timeSlot: `${startTime}-${endTime}`,
                     reason: error.message
                 });
             }
         }
         
-        // แสดงผลการจอง
         if (failedBookings.length > 0) {
             const errorMessage = failedBookings.map(booking => 
                 `เวลา ${booking.timeSlot}: ${booking.reason}`
@@ -330,19 +371,39 @@ async function submitBooking(e) {
             
             alert(`มีบางช่วงเวลาที่จองไม่สำเร็จ:\n${errorMessage}`);
         } else {
-            alert('จองสำเร็จ!');
+            alert('จองสำเร็จ! รอการยืนยันจากผู้ดูแลระบบ');
         }
         
-        // รีเซ็ตฟอร์มและการแสดงผล
         document.getElementById('reserverName').value = '';
         document.getElementById('reseverPhone').value = '';
-        document.getElementById('selectedTimeRange').textContent = '-';
-        document.getElementById('totalPrice').textContent = '-';
-        document.getElementById('bookingButton').disabled = true;
+        
+        if (successfulBookings.length > 0) {
+            console.log("จองสำเร็จแล้วสำหรับช่วงเวลา:", successfulBookings.join(", "));
+        }
+        
+        if (successfulSlots.length > 0) {
+            const buttons = document.querySelectorAll('button[data-start]');
+            buttons.forEach(button => {
+                const startTime = button.getAttribute('data-start');
+                const endTime = button.getAttribute('data-end');
+                
+                const isBooked = successfulSlots.some(slot => 
+                    slot.start === startTime && slot.end === endTime
+                );
+                
+                if (isBooked) {
+                    button.classList.remove('bg-green-500', 'bg-red-500');
+                    button.classList.add('bg-yellow-500');
+                    button.disabled = true;
+                }
+            });
+        }
+        
         selectedTimes = [];
-
-        // รีเฟรชข้อมูลการจอง
-        await checkAvailability();
+        updateBookingDisplay();
+        setTimeout(async () => {
+            await checkAvailability();
+        }, 500);
         
     } catch (error) {
         console.error('Error:', error);

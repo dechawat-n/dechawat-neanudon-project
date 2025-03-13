@@ -1,0 +1,58 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "admin/css/changelists.css" %}">
+  <style>
+    .field-card {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 20px;
+      background-color: #f9f9f9;
+    }
+    .field-actions {
+      margin-top: 15px;
+    }
+    .field-info {
+      margin-bottom: 10px;
+    }
+    .field-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .add-field-btn {
+      margin-bottom: 20px;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <h1>จัดการสนาม</h1>
+  
+  <div class="add-field-btn">
+    <a href="{% url 'admin:booking_field_add' %}" class="addlink">เพิ่มสนามใหม่</a>
+  </div>
+  
+  <div class="field-container">
+    {% for field in fields %}
+    <div class="field-card">
+      <div class="field-title">{{ field.name }}</div>
+      <div class="field-info">
+        <p><strong>ความจุ:</strong> {{ field.capacity }} คน</p>
+        <p><strong>ราคาต่อชั่วโมง:</strong> {{ field.price_per_hour }} บาท</p>
+      </div>
+      <div class="field-actions">
+        <a href="{% url 'admin:booking_field_change' field.id %}" class="changelink">แก้ไข</a>
+        <a href="{% url 'admin:booking_field_delete' field.id %}" class="deletelink">ลบ</a>
+      </div>
+    </div>
+    {% empty %}
+    <p>ไม่มีสนามในระบบ กรุณาเพิ่มสนามใหม่</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

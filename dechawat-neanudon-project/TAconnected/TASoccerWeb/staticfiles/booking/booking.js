@@ -65,10 +65,35 @@ function updateBookingDisplay() {
         // เรียงลำดับตามเวลา
         selectedTimes.sort((a, b) => parseFloat(a.start) - parseFloat(b.start));
         
+        // แยกช่วงเวลาที่ต่อเนื่องกัน
+        let timeRanges = [];
+        let currentRange = {
+            start: selectedTimes[0].start,
+            end: selectedTimes[0].end
+        };
+        
+        for (let i = 1; i < selectedTimes.length; i++) {
+            const currentTime = parseFloat(selectedTimes[i].start);
+            const previousEnd = parseFloat(currentRange.end);
+            
+            // ถ้าเวลาเริ่มต้นปัจจุบันเท่ากับเวลาสิ้นสุดของช่วงก่อนหน้า ให้ขยายช่วงเวลาปัจจุบัน
+            if (currentTime === previousEnd) {
+                currentRange.end = selectedTimes[i].end;
+            } else {
+                // ถ้าไม่ต่อเนื่อง ให้บันทึกช่วงเวลาเก่าและเริ่มช่วงเวลาใหม่
+                timeRanges.push(currentRange);
+                currentRange = {
+                    start: selectedTimes[i].start,
+                    end: selectedTimes[i].end
+                };
+            }
+        }
+        
+        // เพิ่มช่วงเวลาสุดท้าย
+        timeRanges.push(currentRange);
+        
         // สร้างข้อความแสดงช่วงเวลา
-        const timeRangeText = selectedTimes.map(time => 
-            `${time.start} - ${time.end}`
-        ).join(' และ ');
+        const timeRangeText = timeRanges.map(range => `${range.start} - ${range.end}`).join(' และ ');
         
         timeRangeElement.textContent = `${timeRangeText} (${selectedTimes.length} ชั่วโมง)`;
         const totalPrice = selectedTimes.length * pricePerHour;

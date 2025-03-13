@@ -18,9 +18,11 @@ from django.urls import path, include
 from booking.admin import admin_site
 from django.conf import settings
 from django.conf.urls.static import static
+from booking.views_admin import fields_management_view
 
 urlpatterns = [
     path('admin/', admin_site.urls),
+     path('fields-management/', fields_management_view, name='fields_management'),
     path('', include('booking.urls')),
     path('',include('LoginSystem.urls')),
 ]

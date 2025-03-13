@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Field, Reservation
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.conf import settings
@@ -45,34 +45,76 @@ def check_availability(request):
     
     try:
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        next_day = date + timedelta(days=1)
         
-        # Get all reservations for the selected date and field
-        reservations = Reservation.objects.filter(
+        # แยกการค้นหาเป็นสองส่วน: confirmed และ pending
+        confirmed_reservations = Reservation.objects.filter(
             field_id=field_id,
             reservation_date=date,
-            status='booked'
+            status='confirmed'  # เฉพาะที่ยืนยันแล้ว
+        )
+        
+        pending_reservations = Reservation.objects.filter(
+            field_id=field_id,
+            reservation_date=date,
+            status='pending'  # เฉพาะที่รอยืนยัน
         )
 
-        # Create time slots (14:00 - 23:00)
+        # สำหรับช่วงเวลา 23:00-00:00 ที่อาจข้ามวัน
+        next_day_reservations = Reservation.objects.filter(
+            field_id=field_id,
+            reservation_date=next_day,
+            start_time=datetime.strptime('00:00', '%H:%M').time(),
+            status__in=['confirmed', 'pending']
+        )
+        
+        # สร้างช่วงเวลา (14:00 - 24:00)
         time_slots = []
-        for hour in range(14, 24):  # Stop at 23
+        for hour in range(14, 24):
             start_time = f"{hour:02d}:00"
-            end_time = f"{(hour + 1) % 24:02d}:00"  # Use modulo for midnight
             
-            # แปลงเวลาเป็น time objects
-            start_time_obj = datetime.strptime(start_time, '%H:%M').time()
-            end_time_obj = datetime.strptime(end_time, '%H:%M').time()
+            # จัดการกับช่วงเวลา 23:00-24:00 เป็นพิเศษ
+            if hour == 23:
+                end_time = "00:00"
+                end_time_obj = datetime.strptime(end_time, '%H:%M').time()
+                
+                # ตรวจสอบว่าช่วงเวลานี้มีการจองหรือไม่
+                is_confirmed = confirmed_reservations.filter(
+                    start_time__lte=datetime.strptime(start_time, '%H:%M').time(),
+                    end_time__gte=datetime.strptime(start_time, '%H:%M').time()
+                ).exists() or next_day_reservations.filter(status='confirmed').exists()
+                
+                is_pending = pending_reservations.filter(
+                    start_time__lte=datetime.strptime(start_time, '%H:%M').time(),
+                    end_time__gte=datetime.strptime(start_time, '%H:%M').time()
+                ).exists() or next_day_reservations.filter(status='pending').exists()
+            else:
+                end_time = f"{(hour + 1):02d}:00"
+                end_time_obj = datetime.strptime(end_time, '%H:%M').time()
+                
+                # ตรวจสอบว่าช่วงเวลานี้มีการจองหรือไม่
+                is_confirmed = confirmed_reservations.filter(
+                    start_time__lte=datetime.strptime(end_time, '%H:%M').time(),
+                    end_time__gt=datetime.strptime(start_time, '%H:%M').time()
+                ).exists()
+                
+                is_pending = pending_reservations.filter(
+                    start_time__lte=datetime.strptime(end_time, '%H:%M').time(),
+                    end_time__gt=datetime.strptime(start_time, '%H:%M').time()
+                ).exists()
             
-            # Check if this time slot is reserved
-            is_reserved = reservations.filter(
-                start_time__lte=end_time_obj,
-                end_time__gt=start_time_obj
-            ).exists()
-            
+            # กำหนดสถานะของช่วงเวลา
+            if is_confirmed:
+                status_val = 'confirmed'
+            elif is_pending:
+                status_val = 'pending'
+            else:
+                status_val = 'available'
+                
             time_slots.append({
                 'start': f"{hour:02d}.00",
-                'end': f"{(hour + 1) % 24:02d}.00",
-                'status': 'reserved' if is_reserved else 'available'
+                'end': "00.00" if hour == 23 else f"{(hour + 1):02d}.00",
+                'status': status_val
             })
         
         print(f"Time slots for {date}: {time_slots}")  # Debug print
@@ -84,26 +126,35 @@ def check_availability(request):
     
 @api_view(['POST'])
 def create_reservation(request):
+    if not request.user.is_authenticated:
+        return Response({
+            'status': 'error',
+            'message': 'กรุณาเข้าสู่ระบบก่อนทำการจอง'
+        }, status=status.HTTP_401_UNAUTHORIZED)
+    
     try:
         data = request.data
         print("Received data:", data)  # Debug print
         
         field = Field.objects.get(id=data['field_id'])
         
-        # แปลงรูปแบบเวลาจาก "14.00" เป็น "14:00"
+        # Format times properly
         start_time_str = data['start_time'].replace('.', ':')
         end_time_str = data['end_time'].replace('.', ':')
         
-        # แปลงเป็น time objects
+        # Special handling for midnight
+        if end_time_str == '24:00':
+            end_time_str = '00:00'
+        
         start_time = datetime.strptime(start_time_str, '%H:%M').time()
         end_time = datetime.strptime(end_time_str, '%H:%M').time()
         reservation_date = datetime.strptime(data['date'], '%Y-%m-%d').date()
 
-        # ตรวจสอบว่าช่วงเวลานี้ว่างหรือไม่
+        # Check if the slot is available
         existing_reservation = Reservation.objects.filter(
             field=field,
             reservation_date=reservation_date,
-            status='booked'
+            status__in=['confirmed', 'pending']
         ).filter(
             start_time__lt=end_time,
             end_time__gt=start_time
@@ -115,7 +166,12 @@ def create_reservation(request):
                 'message': 'ช่วงเวลานี้มีการจองแล้ว กรุณาเลือกเวลาอื่น'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # สร้างการจอง
+        # Store detailed time slots
+        time_slots = []
+        if 'time_slots' in data and data['time_slots']:
+            time_slots = data['time_slots']
+        
+        # Create the reservation with pending status
         reservation = Reservation.objects.create(
             field=field,
             reservation_date=reservation_date,
@@ -124,7 +180,8 @@ def create_reservation(request):
             customer_name=data['customer_name'],
             phone=data['phone'],
             total_price=Decimal(str(data['total_price'])),
-            status='booked'
+            status='pending',  # Set status to pending by default
+            time_slots_data=time_slots
         )
         
         return Response({
@@ -162,14 +219,14 @@ def ReserveView(request):
     logged_in = check_login(request)
     return render(request, 'public/resevation/reservation.html', logged_in)
 
-def BigReserveView(request):  # for big
-    logged_in = check_login(request)
-    return render(request, 'public/resevation/big-reservation.html', logged_in)
+def BigReserveView(request):  
+    context = check_login(request)  
+    return render(request, 'public/resevation/big-reservation.html', context)
 
-def MediumReserveView(request):  # for medium
-    logged_in = check_login(request)
-    return render(request, 'public/resevation/medium-reservation.html', logged_in)
+def MediumReserveView(request):  
+    context = check_login(request)  
+    return render(request, 'public/resevation/medium-reservation.html', context)
 
-def SmallReserveView(request):  # for small
-    logged_in = check_login(request)
-    return render(request, 'public/resevation/small-reservation.html', logged_in)
+def SmallReserveView(request):  
+    context = check_login(request)  
+    return render(request, 'public/resevation/small-reservation.html', context)
