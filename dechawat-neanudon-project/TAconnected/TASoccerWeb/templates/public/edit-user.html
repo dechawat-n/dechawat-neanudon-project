@@ -1,11 +1,13 @@
 {% extends 'public/base.html' %}
-{% block title %}เกี่ยวกับเรา{% endblock %}
+{% block title %}แก้ไขข้อมูลส่วนตัว{% endblock %}
 {% load static %}
 {% block content %}
 <div class="flex justify-center items-center h-screen bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url({% static 'images/test.jpg' %});">
     <!-- container -->
     <div class="p-6 shadow-lg bg-white rounded-md w-full max-w-md text-gray-700">
         <h1 class="text-3xl block text-center font-semibold">ข้อมูลของฉัน</h1>
+        {% csrf_token %}
+        <div id="message-box" class="mt-2 mb-2 p-2 text-center hidden"></div>
         <!-- email -->
         <div>
             <div class="flex gap-2 items-baseline">
@@ -14,7 +16,7 @@
             </div>
             <span id="emailText" class="text-gray-700">{{user.email}}</span>
             <input type="text" id="emailInput" value="{{user.email}}" class="hidden px-3 py-1 border rounded-lg">
-            <button id="emailButton" onclick="toggleEdit('email')" class="text-blue-500 hover:underline" style="cursor: pointer;">Edit</button>
+            <button id="emailButton" onclick="toggleEdit('email')" class="text-blue-500 hover:underline ml-2" style="cursor: pointer;">Edit</button>
         </div>
         <!-- phonenumber -->
         <div>
@@ -24,7 +26,7 @@
             </div>
             <span id="phoneNumText" class="text-gray-700">{{user.phone_number}}</span>
             <input type="tel" maxlength="10" id="phoneNumInput" value="{{user.phone_number}}" class="hidden px-3 py-1 border rounded-lg">
-            <button id="phoneNumButton" onclick="toggleEdit('phoneNum')" class="text-blue-500 hover:underline" style="cursor: pointer;">Edit</button>
+            <button id="phoneNumButton" onclick="toggleEdit('phoneNum')" class="text-blue-500 hover:underline ml-2" style="cursor: pointer;">Edit</button>
         </div>
         <!-- username -->
         <div>
@@ -34,7 +36,7 @@
             </div>
             <span id="usernameText" class="text-gray-700">{{user.username}}</span>
             <input type="text" id="usernameInput" value="{{user.username}}" class="hidden px-3 py-1 border rounded-lg">
-            <button id="usernameButton" onclick="toggleEdit('username')" class="text-blue-500 hover:underline" style="cursor: pointer;">Edit</button>
+            <button id="usernameButton" onclick="toggleEdit('username')" class="text-blue-500 hover:underline ml-2" style="cursor: pointer;">Edit</button>
         </div>
         <!-- password -->
         <div>
@@ -43,122 +45,266 @@
                 <p id="password-error" class="text-base text-sm text-red-500"></p><p id="confirm-password-error" class="text-base text-sm text-red-500"></p> </p> <!-- error handle -->
             </div>
             <span id="passwordText" class="text-gray-700">••••••••</span>
-            <input type="password" id="passwordInput" value="" class="hidden px-3 py-1 border rounded-lg mb-2">
-            <input type="password" id="reEnterPasswordInput" value="" class="hidden px-3 py-1 border rounded-lg">
-            <button id="passwordButton" onclick="toggleEdit('password')" class="text-blue-500 hover:underline" style="cursor: pointer;">Edit</button>
+            <input type="password" id="passwordInput" placeholder="รหัสผ่านปัจจุบัน" class="hidden px-3 py-1 border rounded-lg mb-2">
+            <input type="password" id="newPasswordInput" placeholder="รหัสผ่านใหม่" class="hidden px-3 py-1 border rounded-lg mb-2">
+            <input type="password" id="reEnterPasswordInput" placeholder="ยืนยันรหัสผ่านใหม่" class="hidden px-3 py-1 border rounded-lg">
+            <button id="passwordButton" onclick="toggleEdit('password')" class="text-blue-500 hover:underline ml-2" style="cursor: pointer;">Edit</button>
         </div>
     </div>
 </div>
 {% endblock %}
 {% block extra_js %}
 <script>
+    let activeField = null;
+    
     function toggleEdit(id) {
         const textElement = document.getElementById(id + "Text");
         const inputElement = document.getElementById(id + "Input");
         const buttonElement = document.getElementById(id + "Button");
-        const reEnterPasswordInput = document.getElementById("reEnterPasswordInput")
+        const messageBox = document.getElementById("message-box");
+        
+        // Reset message box
+        messageBox.innerHTML = "";
+        messageBox.classList.add("hidden");
+        messageBox.classList.remove("bg-green-100", "text-green-800", "bg-red-100", "text-red-800");
+        
+        // ถ้ากำลังแก้ไขฟิลด์อื่นอยู่ ให้ปิดก่อน
+        if (activeField && activeField !== id) {
+            const activeText = document.getElementById(activeField + "Text");
+            const activeInput = document.getElementById(activeField + "Input");
+            const activeButton = document.getElementById(activeField + "Button");
+            
+            activeText.classList.remove("hidden");
+            
+            // Hide all password related inputs
+            if (activeField === "password") {
+                document.getElementById("passwordInput").classList.add("hidden");
+                document.getElementById("newPasswordInput").classList.add("hidden");
+                document.getElementById("reEnterPasswordInput").classList.add("hidden");
+            } else {
+                if (activeInput) activeInput.classList.add("hidden");
+            }
+            
+            if (activeButton) activeButton.innerText = "Edit";
+            
+            // Reset errors
+            document.getElementById(activeField + "-error").textContent = "";
+        }
 
         if (inputElement.classList.contains("hidden")) {
+            // Switch to edit mode
             textElement.classList.add("hidden");
             inputElement.classList.remove("hidden");
             buttonElement.innerText = "Save";
+            activeField = id;
+            
             if (id === "password") {
-                
-                reEnterPasswordInput.classList.remove("hidden");
+                document.getElementById("newPasswordInput").classList.remove("hidden");
+                document.getElementById("reEnterPasswordInput").classList.remove("hidden");
             }
         } else {
+            // Save changes
             if (id === "password") {
-                    textElement.innerText = "••••••••"; // Mask password again
-                    reEnterPasswordInput.classList.add("hidden")
-                } else {
-                    textElement.innerText = inputElement.value;
-                }
-            textElement.classList.remove("hidden");
-            inputElement.classList.add("hidden");
-            buttonElement.innerText = "Edit";
-        }
-    }
-</script>
-<script>
-    // Select input fields
-        const username = document.getElementById("usernameInput");
-        const email = document.getElementById("emailInput");
-        const phone = document.getElementById("phoneNumInput");
-        const password = document.getElementById("passwordInput");
-        const confirmPassword = document.getElementById("reEnterPasswordInput");
-
-        // Reusable function for validation styling
-        function updateBorder(input, isValid) {
-            if (isValid) {
-                input.style.border = "1px solid green"; // Green border for valid input
+                savePassword();
             } else {
-                input.style.border = "1px solid red"; // Red border for invalid input
+                saveProfile(id);
             }
         }
-
-        // Validation functions
-        function validateUsername() {
-            const error = document.getElementById("username-error");
-            const isValid = username.value.trim().length >= 3;
-            error.textContent = isValid ? "" : "ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร";
-            updateBorder(username, isValid);
+    }
+    
+    function saveProfile(field) {
+        // Get values based on field
+        let data = {};
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        
+        if (field === "email") {
+            data.email = document.getElementById("emailInput").value;
+            // Validate email
+            if (!validateEmail(data.email)) {
+                document.getElementById("email-error").textContent = "รูปแบบอีเมลไม่ถูกต้อง";
+                return;
+            }
+        } else if (field === "phoneNum") {
+            data.phone_number = document.getElementById("phoneNumInput").value;
+            // Validate phone number
+            if (!validatePhone(data.phone_number)) {
+                document.getElementById("phone-error").textContent = "หมายเลขโทรศัพท์ต้องมี 10 หลัก";
+                return;
+            }
+        } else if (field === "username") {
+            data.username = document.getElementById("usernameInput").value;
+            // Validate username
+            if (!validateUsername(data.username)) {
+                document.getElementById("username-error").textContent = "ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร";
+                return;
+            }
         }
-
-        function validateEmail() {
-            const error = document.getElementById("email-error");
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const isValid = emailPattern.test(email.value.trim());
-            error.textContent = isValid ? "" : "รูปแบบอีเมลไม่ถูกต้อง";
-            updateBorder(email, isValid);
-        }
-
-        function validatePhone() {
-            const error = document.getElementById("phone-error");
-            const phonePattern = /^\d{10}$/;
-            const isValid = phonePattern.test(phone.value.trim());
-            error.textContent = isValid ? "" : "หมายเลขโทรศัพท์ต้องมี 10 หลัก";
-            updateBorder(phone, isValid);
-        }
-
-        function validatePassword() {
-            const error = document.getElementById("password-error");
-            const isValid = password.value.length >= 5;
-            error.textContent = isValid ? "" : "รหัสผ่านต้องมีอย่างน้อย 5 ตัวอักษร";
-            updateBorder(password, isValid);
-
-            validateConfirmPassword();
-        }
-
-        function validateConfirmPassword() {
-            const error = document.getElementById("confirm-password-error");
-            const isValid = password.value === confirmPassword.value && confirmPassword.value.length;
-            error.textContent = isValid ? "" : "รหัสผ่านไม่ตรงกัน";
-            updateBorder(confirmPassword, isValid);
-        }
-
-        // Attach live validation event listeners
-        username.addEventListener("input", validateUsername);
-        email.addEventListener("input", validateEmail);
-        phone.addEventListener("input", validatePhone);
-        password.addEventListener("input", validatePassword);
-        confirmPassword.addEventListener("input", validateConfirmPassword);
-
-        // Prevent form submission if there are errors
-        document.getElementById("registerForm").addEventListener("submit", function(event) {
-            validateUsername();
-            validateEmail();
-            validatePhone();
-            validatePassword();
-            validateConfirmPassword();
-
-            // Check if any error exists
-            const errors = document.querySelectorAll(".error-message");
-            let hasError = false;
-            errors.forEach(error => {
-                if (error.textContent) hasError = true;
-            });
-
-            if (hasError) event.preventDefault();  // Stop form submission if errors exist
+        
+        // Send data to server
+        fetch('/update-profile/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken
+            },
+            body: new URLSearchParams(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            const messageBox = document.getElementById("message-box");
+            
+            if (data.status === 'success') {
+                // Update UI
+                const textElement = document.getElementById(field + "Text");
+                const inputElement = document.getElementById(field + "Input");
+                const buttonElement = document.getElementById(field + "Button");
+                
+                if (field === "phoneNum") {
+                    textElement.textContent = inputElement.value;
+                } else {
+                    textElement.textContent = inputElement.value;
+                }
+                
+                textElement.classList.remove("hidden");
+                inputElement.classList.add("hidden");
+                buttonElement.innerText = "Edit";
+                
+                // Show success message
+                messageBox.textContent = data.message;
+                messageBox.classList.remove("hidden", "bg-red-100", "text-red-800");
+                messageBox.classList.add("bg-green-100", "text-green-800");
+                
+                // Reset active field
+                activeField = null;
+            } else {
+                // Show error message
+                const errorElement = document.getElementById(field + "-error");
+                errorElement.textContent = data.message;
+                
+                messageBox.textContent = data.message;
+                messageBox.classList.remove("hidden", "bg-green-100", "text-green-800");
+                messageBox.classList.add("bg-red-100", "text-red-800");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            
+            // Show error message
+            const messageBox = document.getElementById("message-box");
+            messageBox.textContent = "เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่";
+            messageBox.classList.remove("hidden", "bg-green-100", "text-green-800");
+            messageBox.classList.add("bg-red-100", "text-red-800");
         });
+    }
+    
+    function savePassword() {
+        // Get password values
+        const currentPassword = document.getElementById("passwordInput").value;
+        const newPassword = document.getElementById("newPasswordInput").value;
+        const confirmPassword = document.getElementById("reEnterPasswordInput").value;
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        
+        // Validate passwords
+        if (!currentPassword) {
+            document.getElementById("password-error").textContent = "กรุณากรอกรหัสผ่านปัจจุบัน";
+            return;
+        }
+        
+        if (newPassword.length < 5) {
+            document.getElementById("password-error").textContent = "รหัสผ่านใหม่ต้องมีอย่างน้อย 5 ตัวอักษร";
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            document.getElementById("confirm-password-error").textContent = "รหัสผ่านใหม่ไม่ตรงกัน";
+            return;
+        }
+        
+        // Reset errors
+        document.getElementById("password-error").textContent = "";
+        document.getElementById("confirm-password-error").textContent = "";
+        
+        // Send data to server
+        fetch('/change-password/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken
+            },
+            body: new URLSearchParams({
+                current_password: currentPassword,
+                new_password: newPassword,
+                confirm_password: confirmPassword
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            const messageBox = document.getElementById("message-box");
+            
+            if (data.status === 'success') {
+                // Update UI
+                const textElement = document.getElementById("passwordText");
+                const passwordInput = document.getElementById("passwordInput");
+                const newPasswordInput = document.getElementById("newPasswordInput");
+                const reEnterPasswordInput = document.getElementById("reEnterPasswordInput");
+                const buttonElement = document.getElementById("passwordButton");
+                
+                // Reset password fields
+                passwordInput.value = "";
+                newPasswordInput.value = "";
+                reEnterPasswordInput.value = "";
+                
+                textElement.classList.remove("hidden");
+                passwordInput.classList.add("hidden");
+                newPasswordInput.classList.add("hidden");
+                reEnterPasswordInput.classList.add("hidden");
+                buttonElement.innerText = "Edit";
+                
+                // Show success message
+                messageBox.textContent = data.message;
+                messageBox.classList.remove("hidden", "bg-red-100", "text-red-800");
+                messageBox.classList.add("bg-green-100", "text-green-800");
+                
+                // Reset active field
+                activeField = null;
+            } else {
+                // Show error message
+                if (data.message.includes("รหัสผ่านปัจจุบันไม่ถูกต้อง")) {
+                    document.getElementById("password-error").textContent = data.message;
+                } else {
+                    const messageBox = document.getElementById("message-box");
+                    messageBox.textContent = data.message;
+                    messageBox.classList.remove("hidden", "bg-green-100", "text-green-800");
+                    messageBox.classList.add("bg-red-100", "text-red-800");
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            
+            // Show error message
+            const messageBox = document.getElementById("message-box");
+            messageBox.textContent = "เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่";
+            messageBox.classList.remove("hidden", "bg-green-100", "text-green-800");
+            messageBox.classList.add("bg-red-100", "text-red-800");
+        });
+    }
+    
+    // Validation functions
+    function validateEmail(email) {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email);
+    }
+    
+    function validatePhone(phone) {
+        const phonePattern = /^\d{10}$/;
+        return phonePattern.test(phone);
+    }
+    
+    function validateUsername(username) {
+        return username.trim().length >= 3;
+    }
 </script>
 {% endblock %}
