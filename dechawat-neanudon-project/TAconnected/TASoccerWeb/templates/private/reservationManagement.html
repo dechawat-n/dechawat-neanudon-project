@@ -1,0 +1,101 @@
+{% extends 'private/base.html' %}
+{% block content %}
+<main class="flex-1 p-6 bg-gray-100">
+    <div class="max-w-6xl mx-auto bg-white p-6 shadow-md rounded-md">
+        <!-- 📅 Calendar -->
+        <input type="date" id="calendar" class="border p-2 rounded-md w-full text-center mb-4" placeholder="Select a Date">
+        
+        <!-- 🔹 Tables for Different Field Sizes -->
+        <div id="reservationTables">
+            <!-- must be fix to match the field size later na now got value from LoginView.py-->
+            {% for size in field_sizes %} 
+                <div class="mb-6">
+                    <h2 class="text-lg font-semibold mb-2">{{ size }} Field Reservations</h2>
+                    <table class="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="border p-2">ID</th>
+                                <th class="border p-2">User</th>
+                                <th class="border p-2">Time Slot</th>
+                                <th class="border p-2">Status</th>
+                                <th class="border p-2">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-{{ size|lower }}">
+                            <!-- Reservations will be loaded here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% endblock %}
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let calendar = document.getElementById("calendar");
+
+        // Set default value to today
+        let today = new Date().toISOString().split("T")[0];
+        calendar.value = today;
+        
+        // Load reservations on date change
+        calendar.addEventListener("change", function () {
+            loadReservations(calendar.value);
+        });
+
+        // Load reservations when the page loads
+        loadReservations(today);
+    });
+
+    // example function please fix
+    function loadReservations(date) {
+        fetch(`/api/reservations/?date=${date}`)
+            .then(response => response.json())
+            .then(data => {
+                ["small", "medium", "large"].forEach(size => {
+                    let tableBody = document.getElementById(`table-${size}`);
+                    tableBody.innerHTML = ""; // Clear previous data
+
+                    data[size].forEach(reservation => {
+                        let row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td class="border p-2">${reservation.id}</td>
+                            <td class="border p-2">${reservation.user}</td>
+                            <td class="border p-2">${reservation.time}</td>
+                            <td class="border p-2">
+                                <span class="px-2 py-1 rounded-md ${getStatusColor(reservation.status)}">${reservation.status}</span>
+                            </td>
+                            <td class="border p-2">
+                                <button onclick="confirmReservation(${reservation.id})" class="bg-green-500 text-white px-2 py-1 rounded-md mr-2">Confirm</button>
+                                <button onclick="editReservation(${reservation.id})" class="bg-blue-500 text-white px-2 py-1 rounded-md">Edit</button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                });
+            });
+    }
+
+    function getStatusColor(status) {
+        if (status === "Pending") return "bg-yellow-300";
+        if (status === "Confirmed") return "bg-green-300";
+        if (status === "Canceled") return "bg-red-300";
+        return "bg-gray-300";
+    }
+
+    function confirmReservation(id) {
+        fetch(`/api/reservations/confirm/${id}/`, { method: "POST" })
+            .then(response => response.json())
+            .then(() => {
+                let selectedDate = document.getElementById("calendar").value;
+                loadReservations(selectedDate);
+            });
+    }
+
+    function editReservation(id) {
+        alert("Edit function not implemented yet!");
+    }
+</script>
+{% endblock %}

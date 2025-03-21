@@ -1,0 +1,53 @@
+{% extends 'public/base.html' %}
+{% load static %}
+{% block content %}
+<div class="flex justify-center items-center h-screen bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url({% static 'images/test.jpg' %});">
+    <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-lg mt-20">
+        <h2 class="text-2xl font-bold text-center mb-4">📍 ติดต่อเรา</h2>
+        <p class="text-gray-600 text-center mb-6">สามารถติดต่อเราได้ตามช่องทางดังนี้ :</p>
+
+        <div class="space-y-4">
+            <div class="flex items-center space-x-3">
+                <span class="text-blue-600 text-xl">📘</span>
+                <a href="https://www.facebook.com/share/15q6FdMoH8/" target="_blank" class="text-blue-600 hover:underline" style="color: #1877F2;">
+                    Facebook: สนามฟุตบอลหญ้าเทียม ที.เอ.ซอคเกอร์ บุรีรัมย์ 
+                </a>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <span class="text-green-500 text-xl" >💬</span>
+                <a href="https://line.me/ti/p/yourlineid" target="_blank" class="text-green-500 hover:underline" style="color: #06C755;">
+                    Line: @eiei
+                </a>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <span class="text-gray-700 text-xl">📞</span>
+                <p class="text-gray-700">Phone: +66 1234 5678</p>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <span class="text-red-600 text-xl">📍</span>
+                <p class="text-gray-700">Location: ตรงข้ามเทศบาลอีสาน ติดสำนักงานประกันสังคม</p>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <span class="text-gray-700 text-xl">🕒</span>
+                <p class="text-gray-700">
+                    Open: เปิดทุกวัน 14.00 - 24.00 <br>
+                    Closed: ปิดทุกวันหวยออก
+                </p>
+            </div>
+        </div>
+
+        <!-- Google Map Embed -->
+        <div class="mt-6">
+            <iframe 
+                class="w-full h-64 rounded-lg shadow-md"
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2887.2253637079666!2d103.07876174632545!3d14.99361911453767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31199677b8818be7%3A0xc3c210d51663774e!2sBuriram%20artificial%20grass%20football%20field%20T.A.%20Soccer!5e0!3m2!1sen!2sth!4v1741890466196!5m2!1sen!2sth"
+                allowfullscreen="" 
+                loading="lazy">
+            </iframe>
+        </div>
+</div>
+{% endblock %}

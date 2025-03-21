@@ -19,7 +19,12 @@ urlpatterns = [
     path('password-reset-sent/<str:reset_id>/', LoginViews.PasswordResetSent, name='password-reset-sent'),
     path('reset-password/<str:reset_id>/', LoginViews.ResetPassword, name='reset-password'),
 
-    path('about-us', LoginViews.AboutusView, name='aboutus'),
+    path('about-us/', LoginViews.AboutusView, name='aboutus'),
+    path('myaccount/', LoginViews.UserEditView, name='edituser'),
+
+    path("gallery/", LoginViews.gallery_view, name="gallery"),
+
+    path("contact-us/", LoginViews.contactUsView, name="contactUs"),
 
     #for test
     #path('passwordresetfortesting/', LoginViews.PasswordResetSentForTesting, name='passwordresettest'),

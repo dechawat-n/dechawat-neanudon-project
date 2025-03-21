@@ -7,6 +7,7 @@
     {% load static %}
     <title>{% block title %}T.A.SOCCER{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'output.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
@@ -23,10 +24,10 @@
             <div class="hidden md:flex text-gray-700 text-lg font-medium">
                 <ul class="flex items-center gap-7">
                     <li><a href="{% url 'home-th' %}" class="hover:text-red-600">หน้าหลัก</a></li>
-                    <li><a href="#" class="hover:text-red-600">เกี่ยวกับเรา</a></li>
-                    <li><a href="#" class="hover:text-red-600">กิจกรรม</a></li>
-                    <li><a href="#" class="hover:text-red-600">แกลอรี่</a></li>
-                    <li><a href="#" class="hover:text-red-600">ติดต่อเรา</a></li>
+                    <li><a href="{% url 'aboutus' %}" class="hover:text-red-600">เกี่ยวกับเรา</a></li>
+                    <li><a href="#" class="hover:text-red-600">ราคาและการจอง</a></li>
+                    <li><a href="{% url 'gallery' %}" class="hover:text-red-600">แกลอรี่</a></li>
+                    <li><a href="{% url 'contactUs' %}" class="hover:text-red-600">ติดต่อเรา</a></li>
                 </ul>
             </div>
             <!-- right button -->
@@ -44,15 +45,19 @@
 
                         <!-- Center the items -->
                         <div class="md:hidden flex flex-col mt-10" style="gap: 10px;">
-                            <a href="{% url 'home-th' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">หน้าหลัก</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">เกี่ยวกับเรา</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">กิจกรรม</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">แกลอรี่</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">ติดต่อเรา</a>
+                            <a href="{% url 'home-th' %}" class="block px-4 py-2 text-sm text-gray-700">หน้าหลัก</a>
+                            <a href="{% url 'aboutus' %}" class="block px-4 py-2 text-sm text-gray-700">เกี่ยวกับเรา</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700">กิจกรรม</a>
+                            <a href="{% url 'gallery' %}" class="block px-4 py-2 text-sm text-gray-700">แกลอรี่</a>
+                            <a href="{% url 'contactUs' %}" class="block px-4 py-2 text-sm text-gray-700">ติดต่อเรา</a>
                         </div>
                         
                         <hr class="my-1">
+                        <a href="{% url 'edituser' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">แก้ไขข้อมูลผู้ใช้</a>
                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">การจองของฉัน</a>
+                        {% if request.user.is_superuser %}
+                            <a href="{% url 'admin_dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">Admin Dashboard</a>
+                        {% endif %}
                         <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-700">ออกจากระบบ</a>
                     </div>
                 </div>

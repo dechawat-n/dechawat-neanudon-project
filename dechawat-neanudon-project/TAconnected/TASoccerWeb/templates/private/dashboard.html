@@ -1,0 +1,24 @@
+{% extends 'private/base.html' %}
+{% block content %}
+<!-- Main Content -->
+<main class="flex-1 p-6">
+    <!-- Dashboard Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-lg shadow" style="padding: 10px;">
+            <h3 class="text-lg font-semibold">Total Users</h3>
+            <p class="text-2xl font-bold">{{user_count}}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow" style="padding: 10px;">
+            <h3 class="text-lg font-semibold">Active Reservations</h3>
+            <p class="text-2xl font-bold">0</p>
+        </div>
+        <div class="bg-white rounded-lg shadow" style="padding: 10px;">
+            <h3 class="text-lg font-semibold">Pending Reservation</h3>
+            <p class="text-2xl font-bold">0</p>
+        </div>
+    </div>
+
+</main>
+{% endblock %}
+{% block extra_js %}
+{% endblock %}

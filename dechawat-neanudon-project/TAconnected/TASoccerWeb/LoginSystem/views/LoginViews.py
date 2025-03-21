@@ -1,8 +1,7 @@
 # Import necessary modules and functions
-from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
@@ -10,9 +9,11 @@ from django.core.mail import EmailMessage
 from django.utils import timezone
 from django.urls import reverse
 from ..models import *
+from ...booking.models import *
 from typing import Optional
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 import logging
 
 # Create a logger instance
@@ -73,33 +74,46 @@ def RegisterView(request):
         confirm_password = request.POST.get('confirm_password')
         user_data_has_error = False
 
-        # Check if username or email already exists
-
-        if CustomerUsers.objects.filter(username=username).exists():
-            user_data_has_error = True
-            messages.error(request, "ชื่อผู้ใช้นี้มีอยู่แล้ว")
-        if CustomerUsers.objects.filter(email=email).exists():
-            user_data_has_error = True
-            messages.error(request, "อีเมลนี้มีอยู่แล้ว")
-        if len(password) < 5:
-            user_data_has_error = True
-            messages.error(request, "รหัสผ่านต้องมีอย่างน้อย 5 ตัวอักษร")
-        if len(phone_number) != 10:
-            user_data_has_error = True
-            messages.error(request, "หมายเลขโทรศัพท์ต้องมี 10 หลัก")
-        if password != confirm_password:
-            user_data_has_error = True
-            messages.error(request, "รหัสผ่านไม่ตรงกัน")
-        if user_data_has_error:
-            return redirect('register-th')
-        else:
-            # Create new user
-            new_user = CustomerUsers.objects.create_user(
-                email=email,
-                username=username,
-                password=password,
-                phone_number=phone_number
-            )
+        if not user_data_has_error:
+             # Create new user
+             new_user = CustomerUsers.objects.create_user(
+                 email=email,
+                 username=username,
+                 password=password,
+                 phone_number=phone_number
+             )
+        # errors = {}
+        # # Check if username or email already exists
+        # if CustomerUsers.objects.filter(username=username).exists():
+        #     user_data_has_error = True
+        #     #messages.error(request, "ชื่อผู้ใช้นี้มีอยู่แล้ว")
+        #     errors['username'] = "ชื่อผู้ใช้นี้มีอยู่แล้ว"
+        # if CustomerUsers.objects.filter(email=email).exists():
+        #     user_data_has_error = True
+        #     #messages.error(request, "อีเมลนี้มีอยู่แล้ว")
+        #     errors['email'] = "ชื่อผู้ใช้นี้มีอยู่แล้ว"
+        # if len(password) < 5:
+        #     user_data_has_error = True
+        #     #messages.error(request, "รหัสผ่านต้องมีอย่างน้อย 5 ตัวอักษร")
+        #     errors['password'] = "รหัสผ่านต้องมีอย่างน้อย 5 ตัวอักษร"
+        # if len(phone_number) != 10:
+        #     user_data_has_error = True
+        #    #messages.error(request, "หมายเลขโทรศัพท์ต้องมี 10 หลัก")
+        #     errors['phone_number'] = "โปรดกรอกหมายเลขโทรศัพทที่ถูกต้อง"
+        # if password != confirm_password:
+        #     user_data_has_error = True
+        #     #messages.error(request, "รหัสผ่านไม่ตรงกัน")
+        #     errors['confirm_password'] = "รหัสผ่านไม่ตรงกัน"
+        # if user_data_has_error:
+        #     return redirect(request, 'register-th', {'errors': errors})
+        # else:
+        #     # Create new user
+        #     new_user = CustomerUsers.objects.create_user(
+        #         email=email,
+        #         username=username,
+        #         password=password,
+        #         phone_number=phone_number
+        #     )
 
         messages.success(request, "สร้างบัญชีเรียบร้อยแล้ว")
 
@@ -112,35 +126,94 @@ def LogoutView(request):
         logout(request)
     return redirect('/')
 
+# admin page
+
+def isSuperUser(request):
+    logged_in = check_login(request)
+    if not logged_in['loggedin']:
+        return redirect('login-th')
+    if not logged_in['user'].is_superuser:
+        return HttpResponseForbidden("You do not have permission to access this page.")  # 403 Forbidden
+    return logged_in
+
+def admin_dashboard(request):
+    logged_in = isSuperUser(request)
+    # Handle cases where `isSuperUser` returns a response (redirect or forbidden)
+    if isinstance(logged_in, (HttpResponseForbidden, HttpResponseRedirect)):
+        return logged_in  # Return the response immediately
+    
+    user_count = User.objects.count()  # Get all users
+
+    context = {
+        'logged_in': logged_in['loggedin'],
+        'user': logged_in['user'],
+        'user_count': user_count  # Pass users to the template
+    }
+    return render(request, 'private/dashboard.html', context)
+
+def  admin_userManagement(request):
+    logged_in = isSuperUser(request)
+    # Handle cases where `isSuperUser` returns a response (redirect or forbidden)
+    if isinstance(logged_in, (HttpResponseForbidden, HttpResponseRedirect)):
+        return logged_in  # Return the response immediately
+    
+    users = User.objects.all()  # Get all users
+
+    context = {
+        'logged_in': logged_in['loggedin'],
+        'user': logged_in['user'],
+        'users': users,  # Pass users to the template
+        'field_sizes': ['Small', 'Medium', 'Large'],
+    }
+
+    return render(request, 'private/userManagement.html', context)
+
+def admin_reservaionManagement(request):
+    logged_in = isSuperUser(request)
+    # Handle cases where `isSuperUser` returns a response (redirect or forbidden)
+    if isinstance(logged_in, (HttpResponseForbidden, HttpResponseRedirect)):
+        return logged_in  # Return the response immediately
+    
+    user_count = User.objects.count()  # Get all users
+
+    context = {
+        'logged_in': logged_in['loggedin'],
+        'user': logged_in['user'],
+        'user_count': user_count  # Pass users to the template
+    }
+    return render(request, 'private/reservationManagement.html', context)
 # Reserve view with login required
-@login_required
 def PrereserveView(request):
     logged_in = check_login(request)
     return render(request, 'public/resevation/pre-reservation.html', logged_in)
 
-@login_required
 def ReserveView(request):
     logged_in = check_login(request)
     return render(request, 'public/resevation/reservation.html', logged_in)
 
-@login_required
 def BigReserveView(request):  # for big
     logged_in = check_login(request)
     return render(request, 'public/resevation/big-reservation.html', logged_in)
 
-@login_required
 def MediumReserveView(request):  # for medium
     logged_in = check_login(request)
     return render(request, 'public/resevation/medium-reservation.html', logged_in)
 
-@login_required
 def SmallReserveView(request):  # for small
     logged_in = check_login(request)
     return render(request, 'public/resevation/small-reservation.html', logged_in)
 
 # About us
 def AboutusView(request):
-    return render(request, 'public/aboutus.html')
+    logged_in = check_login(request)
+    return render(request, 'public/aboutus.html', logged_in)
+
+User = get_user_model()
+# User Edit ------temporary-----
+def UserEditView(request):
+    logged_in = check_login(request)
+    return render(request, 'public/edit-user.html', logged_in)
+
 
 # Forgot password view with GET and POST methods allowed
 @csrf_protect
@@ -250,3 +323,16 @@ def ResetPassword(request, reset_id):
         return redirect('forgot-password')
 
     return render(request, 'public/passwordRecovery/reset_password.html')
+
+#image and gallery 
+def gallery_view(request):
+    logged_in = check_login(request)
+    return render(request, "public/gallery.html", logged_in)
+
+def admin_gallery(request):
+    logged_in = check_login(request)
+    return render(request, "private/galleryManagement.html", logged_in)
+
+def contactUsView(request):
+    logged_in = check_login(request)
+    return render(request, "public/contactus.html", logged_in)
