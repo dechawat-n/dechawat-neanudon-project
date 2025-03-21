@@ -180,6 +180,7 @@
     }
 
     // Function to handle saving (for now, it just logs input values)
+
     function saveRow(userId) {
     // ตรวจสอบ CSRF token
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]') || 
@@ -272,6 +273,14 @@
     });
 }
 
+    function saveNewRow(rowId) {
+        let username = document.getElementById(`new-username-${rowId}`).value;
+        let email = document.getElementById(`new-email-${rowId}`).value;
+        let role = document.getElementById(`new-role-${rowId}`).value;
+
+        console.log("New User:", { username, email, role });
+        alert("User added (just frontend)");
+    }
 </script>
 
 {% endblock %}
