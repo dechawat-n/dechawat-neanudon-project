@@ -39,6 +39,7 @@
                             <th class="border p-2 text-xl" style="padding: 10px;">End</th>
                             <th class="border p-2 text-xl" style="padding: 10px;">Status</th>
                             <th class="border p-2 text-xl" style="padding: 10px;">Total Price</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="">
@@ -67,6 +68,19 @@
                                     </select>    
                                 </td>
                                 <td class="border p-2 text-xl">{{reservation.total_price}}</td>
+                                <td class="border p-2 text-xl" style="text-align: center;">
+                                    {% if reservation.status != 'pending' %}
+                                    <button onclick="editRow({{ reservation.id }})" id="editStatus-btn-{{ reservation.id }}" class="px-2 rounded" style="background-color: #8B8000; cursor: pointer;">Edit</button>
+                                    <button onclick="saveRow({{ reservation.id }})" id="saveStatus-btn-{{ reservation.id }}" class="px-2 rounded hidden" style="background-color: green; cursor: pointer;">Save</button>
+                                    {% else %}
+                                    <div class="flex">
+    
+                                    
+                                        <button onclick="confirmRow({{ reservation.id }})" id="confirm-btn-{{ reservation.id }}" class="px-2 rounded" style="background-color: green; cursor: pointer;">Confirm</button>
+                                        <button onclick="cancelRow({{ reservation.id }})" id="cancel-btn-{{ reservation.id }}" class="px-2 rounded" style="background-color: red; cursor: pointer;">Cancel</button>
+                                    </div>
+                                    {% endif %}
+                                </td>
                                 
                             </tr>
                         {% endif %}
