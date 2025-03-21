@@ -9,7 +9,7 @@ from django.core.mail import EmailMessage
 from django.utils import timezone
 from django.urls import reverse
 from ..models import *
-from ...booking.models import *
+from booking.models import *
 from typing import Optional
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
@@ -137,6 +137,7 @@ def isSuperUser(request):
     return logged_in
 
 def admin_dashboard(request):
+    reservation = Reservation.objects.all()
     logged_in = isSuperUser(request)
     # Handle cases where `isSuperUser` returns a response (redirect or forbidden)
     if isinstance(logged_in, (HttpResponseForbidden, HttpResponseRedirect)):
@@ -147,7 +148,8 @@ def admin_dashboard(request):
     context = {
         'logged_in': logged_in['loggedin'],
         'user': logged_in['user'],
-        'user_count': user_count  # Pass users to the template
+        'user_count': user_count,  # Pass users to the template
+        'reservation': reservation,
     }
     return render(request, 'private/dashboard.html', context)
 
@@ -169,6 +171,7 @@ def  admin_userManagement(request):
     return render(request, 'private/userManagement.html', context)
 
 def admin_reservaionManagement(request):
+    reservations = Reservation.objects.all()
     logged_in = isSuperUser(request)
     # Handle cases where `isSuperUser` returns a response (redirect or forbidden)
     if isinstance(logged_in, (HttpResponseForbidden, HttpResponseRedirect)):
@@ -179,7 +182,8 @@ def admin_reservaionManagement(request):
     context = {
         'logged_in': logged_in['loggedin'],
         'user': logged_in['user'],
-        'user_count': user_count  # Pass users to the template
+        'user_count': user_count,  # Pass users to the template
+        'reservation': reservations
     }
     return render(request, 'private/reservationManagement.html', context)
 # Reserve view with login required

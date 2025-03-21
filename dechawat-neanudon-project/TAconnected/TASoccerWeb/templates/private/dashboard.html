@@ -5,16 +5,132 @@
     <!-- Dashboard Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-white rounded-lg shadow" style="padding: 10px;">
-            <h3 class="text-lg font-semibold">Total Users</h3>
+            <h3 class="text-2xl font-semibold">Total Users</h3>
             <p class="text-2xl font-bold">{{user_count}}</p>
         </div>
         <div class="bg-white rounded-lg shadow" style="padding: 10px;">
-            <h3 class="text-lg font-semibold">Active Reservations</h3>
+            <h3 class="text-2xl font-semibold">Active Reservations</h3>
             <p class="text-2xl font-bold">0</p>
         </div>
         <div class="bg-white rounded-lg shadow" style="padding: 10px;">
-            <h3 class="text-lg font-semibold">Pending Reservation</h3>
+            <h3 class="text-2xl font-semibold">Pending Reservation</h3>
             <p class="text-2xl font-bold">0</p>
+        </div>
+    </div>
+
+    <!-- pending reservation -->
+    <div class="max-w-6xl mx-auto bg-white p-6 shadow-md rounded-md mt-3">
+        <h2 class="text-2xl font-semibold mb-2">Pending Reservations</h2>
+        <!-- 🔹 Tables for Different Field Sizes -->
+        <div id="reservationTables">
+            <!-- must be fix to match the field size later na now got value from LoginView.py-->
+            <div class="mb-6">
+                
+                <!-- table for big -->
+                <table class="w-full border border-gray-300">
+                    <thead class="border">
+                        <tr class="bg-gray-200 border" style="border: 1px solid black;">
+                            <!-- <th class="border p-2">ID</th> -->
+                            <th class="border p-2 text-xl" style="padding: 10px;">ID</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Customer name</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Field</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Reservation date</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Start</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">End</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Status</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Total Price</th>
+                        </tr>
+                    </thead>
+                    <tbody id="">
+                        {% for reservation in reservation %}
+                        {% if reservation.status == 'pending' %}
+                            <tr>
+                                <td class="border p-2 text-xl">{{reservation.id}}</td>
+                                <td class="border p-2 text-xl">{{reservation.customer_name}}</td> 
+                                <td class="border p-2 text-xl">{{reservation.field}}</td>
+                                <td class="border p-2 text-xl">{{reservation.reservation_date}}</td>
+                                <td class="border p-2 text-xl">{{reservation.start_time}}</td>
+                                <td class="border p-2 text-xl">{{reservation.end_time}}</td> 
+                                <td class="border p-2 text-xl">
+                                    <span
+                                    id="status-{{reservation.id}}" 
+                                    style="color: 
+                                    {% if reservation.status == 'cancelled' %}red
+                                    {% elif reservation.status == 'booked' %}green
+                                    {% else %}darkgoldenrod
+                                    {% endif %};">
+                                    {{reservation.status}}</span>
+                                    <select id="edit-status-{{ reservation.id }}" class="hidden border rounded" style="cursor: pointer;">
+                                        <option value="Pending" {% if reservation.status == 'pending' %}selected{% endif %}>pending</option>
+                                        <option value="Confirmed" {% if reservation.status == 'booked' %}selected{% endif %}>confirmed</option>
+                                        <option value="Cancelled" {% if reservation.status == 'cancelled' %}selected{% endif %}>cancelled</option>
+                                    </select>    
+                                </td>
+                                <td class="border p-2 text-xl">{{reservation.total_price}}</td>
+                                
+                            </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- for all reservation -->
+    <div class="max-w-6xl mx-auto bg-white p-6 shadow-md rounded-md mt-3">
+        <h2 class="text-2xl font-semibold mb-2">All Reservations Logs</h2>
+        <!-- 🔹 Tables for Different Field Sizes -->
+        <div id="reservationTables" style="max-height: 400px;overflow-y: auto;">
+            <!-- must be fix to match the field size later na now got value from LoginView.py-->
+            <div class="mb-6">
+                
+                <!-- table for big -->
+                <table class="w-full border border-gray-300">
+                    <thead class="border" style="position: sticky;top: 0;z-index: 2">
+                        <tr class="bg-gray-200 border" style="border: 1px solid black;">
+                            <!-- <th class="border p-2">ID</th> -->
+                            <th class="border p-2 text-xl" style="padding: 10px;">ID</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Customer name</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Field</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Reservation date</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Start</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">End</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Status</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Total Price</th>
+                        </tr>
+                    </thead>
+                    <tbody id="">
+                        {% for reservation in reservation %}
+                        <tr>
+                            <td class="border p-2 text-xl">{{reservation.id}}</td>
+                            <td class="border p-2 text-xl">{{reservation.customer_name}}</td> 
+                            <td class="border p-2 text-xl">{{reservation.field}}</td>
+                            <td class="border p-2 text-xl">{{reservation.reservation_date}}</td>
+                            <td class="border p-2 text-xl">{{reservation.start_time}}</td>
+                            <td class="border p-2 text-xl">{{reservation.end_time}}</td> 
+                            <td class="border p-2 text-xl">
+                                <span
+                                id="status-{{reservation.id}}" 
+                                style="color: 
+                                {% if reservation.status == 'cancelled' %}red
+                                {% elif reservation.status == 'booked' %}green
+                                {% else %}darkgoldenrod
+                                {% endif %};">
+                                {{reservation.status}}</span>
+                                <select id="edit-status-{{ reservation.id }}" class="hidden border rounded" style="cursor: pointer;">
+                                    <option value="Pending" {% if reservation.status == 'pending' %}selected{% endif %}>pending</option>
+                                    <option value="Confirmed" {% if reservation.status == 'booked' %}selected{% endif %}>confirmed</option>
+                                    <option value="Cancelled" {% if reservation.status == 'cancelled' %}selected{% endif %}>cancelled</option>
+                                </select>    
+                            </td>
+                            <td class="border p-2 text-xl">{{reservation.total_price}}</td>
+                            
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

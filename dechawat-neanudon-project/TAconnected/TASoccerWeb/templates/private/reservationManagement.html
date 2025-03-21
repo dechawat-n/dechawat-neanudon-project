@@ -3,99 +3,197 @@
 <main class="flex-1 p-6 bg-gray-100">
     <div class="max-w-6xl mx-auto bg-white p-6 shadow-md rounded-md">
         <!-- 📅 Calendar -->
-        <input type="date" id="calendar" class="border p-2 rounded-md w-full text-center mb-4" placeholder="Select a Date">
-        
+        <input type="date" id="filterDate" class="border p-2 rounded-md w-full text-center mb-4" placeholder="Select a Date" onchange="filterReservations()">
+    </div>
+
+    <!-- for all reservation -->
+    <div class="max-w-6xl mx-auto bg-white p-6 shadow-md rounded-md mt-3">
+        <h2 class="text-2xl font-semibold mb-2">All Reservations</h2>
         <!-- 🔹 Tables for Different Field Sizes -->
-        <div id="reservationTables">
+        <div id="reservationTables" style="max-height: 400px;overflow-y: auto;">
             <!-- must be fix to match the field size later na now got value from LoginView.py-->
-            {% for size in field_sizes %} 
-                <div class="mb-6">
-                    <h2 class="text-lg font-semibold mb-2">{{ size }} Field Reservations</h2>
-                    <table class="w-full border-collapse border border-gray-300">
-                        <thead>
-                            <tr class="bg-gray-200">
-                                <th class="border p-2">ID</th>
-                                <th class="border p-2">User</th>
-                                <th class="border p-2">Time Slot</th>
-                                <th class="border p-2">Status</th>
-                                <th class="border p-2">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-{{ size|lower }}">
-                            <!-- Reservations will be loaded here dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-            {% endfor %}
+            <div class="mb-6">
+                
+                <!-- table for big -->
+                <table class="w-full border border-gray-300">
+                    <thead class="border" style="position: sticky;top: 0;z-index: 2">
+                        <tr class="bg-gray-200 border" style="border: 1px solid black;">
+                            <!-- <th class="border p-2">ID</th> -->
+                            <th class="border p-2 text-xl" style="padding: 10px;">ID</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Customer name</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Field</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Reservation date</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Start</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">End</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Status</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Total Price</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="">
+                        {% for reservation in reservation %}
+                        <tr>
+                            <td class="border p-2 text-xl">{{reservation.id}}</td>
+                            <td class="border p-2 text-xl">{{reservation.customer_name}}</td> 
+                            <td class="border p-2 text-xl">{{reservation.field}}</td>
+                            <td class="border p-2 text-xl">{{reservation.reservation_date}}</td>
+                            <td class="border p-2 text-xl">{{reservation.start_time}}</td>
+                            <td class="border p-2 text-xl">{{reservation.end_time}}</td> 
+                            <td class="border p-2 text-xl">
+                                <span
+                                id="status-{{reservation.id}}" 
+                                style="color: 
+                                {% if reservation.status == 'cancelled' %}red
+                                {% elif reservation.status == 'booked' %}green
+                                {% else %}darkgoldenrod
+                                {% endif %};">
+                                {{reservation.status}}</span>
+                                <select id="edit-status-{{ reservation.id }}" class="hidden border rounded" style="cursor: pointer;">
+                                    <option value="Pending" {% if reservation.status == 'pending' %}selected{% endif %}>pending</option>
+                                    <option value="Confirmed" {% if reservation.status == 'booked' %}selected{% endif %}>confirmed</option>
+                                    <option value="Cancelled" {% if reservation.status == 'cancelled' %}selected{% endif %}>cancelled</option>
+                                </select>    
+                            </td>
+                            <td class="border p-2 text-xl">{{reservation.total_price}}</td>
+                            <td class="border p-2 text-xl" style="text-align: center;">
+                                {% if reservation.status != 'pending' %}
+                                <button onclick="editRow({{ reservation.id }})" id="editStatus-btn-{{ reservation.id }}" class="px-2 rounded" style="background-color: #8B8000; cursor: pointer;">Edit</button>
+                                <button onclick="saveRow({{ reservation.id }})" id="saveStatus-btn-{{ reservation.id }}" class="px-2 rounded hidden" style="background-color: green; cursor: pointer;">Save</button>
+                                {% else %}
+                                <div class="flex">
+
+                                
+                                    <button onclick="confirmRow({{ reservation.id }})" id="confirm-btn-{{ reservation.id }}" class="px-2 rounded" style="background-color: green; cursor: pointer;">Confirm</button>
+                                    <button onclick="cancelRow({{ reservation.id }})" id="cancel-btn-{{ reservation.id }}" class="px-2 rounded" style="background-color: red; cursor: pointer;">Cancel</button>
+                                </div>
+                                {% endif %}
+                            </td>
+                            
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- for big reservation -->
+    <div class="max-w-6xl mx-auto bg-white p-6 shadow-md rounded-md mt-3">
+        <h2 class="text-2xl font-semibold mb-2">Big field Reservations</h2>
+        <!-- 🔹 Tables for Different Field Sizes -->
+        <div id="reservationTables" style="max-height: 400px;overflow-y: auto;">
+            <!-- must be fix to match the field size later na now got value from LoginView.py-->
+            <div class="mb-6">
+                
+                <!-- table for big -->
+                <table class="w-full border border-gray-300">
+                    <thead class="border" style="position: sticky;top: 0;z-index: 2">
+                        <tr class="bg-gray-200 border" style="border: 1px solid black;">
+                            <!-- <th class="border p-2">ID</th> -->
+                            <th class="border p-2 text-xl" style="padding: 10px;">ID</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Customer name</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Field</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Reservation date</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Start</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">End</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Status</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Total Price</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="big-reservation">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- for medium reservaion -->
+    <div class="max-w-6xl mx-auto bg-white p-6 shadow-md rounded-md mt-3">
+        <h2 class="text-2xl font-semibold mb-2">Medium field Reservations</h2>
+        <!-- 🔹 Tables for Different Field Sizes -->
+        <div id="reservationTables" style="max-height: 400px;overflow-y: auto;">
+            <!-- must be fix to match the field size later na now got value from LoginView.py-->
+            <div class="mb-6">
+                
+                <!-- table for big -->
+                <table class="w-full border border-gray-300">
+                    <thead class="border" style="position: sticky;top: 0;z-index: 2">
+                        <tr class="bg-gray-200 border" style="border: 1px solid black;">
+                            <!-- <th class="border p-2">ID</th> -->
+                            <th class="border p-2 text-xl" style="padding: 10px;">ID</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Customer name</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Field</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Reservation date</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Start</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">End</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Status</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Total Price</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="big-reservation">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- for small reservation -->
+    <div class="max-w-6xl mx-auto bg-white p-6 shadow-md rounded-md mt-3">
+        <h2 class="text-2xl font-semibold mb-2">Small field Reservations</h2>
+        <!-- 🔹 Tables for Different Field Sizes -->
+        <div id="reservationTables" style="max-height: 400px;overflow-y: auto;">
+            <!-- must be fix to match the field size later na now got value from LoginView.py-->
+            <div class="mb-6">
+                
+                <!-- table for big -->
+                <table class="w-full border border-gray-300">
+                    <thead class="border" style="position: sticky;top: 0;z-index: 2">
+                        <tr class="bg-gray-200 border" style="border: 1px solid black;">
+                            <!-- <th class="border p-2">ID</th> -->
+                            <th class="border p-2 text-xl" style="padding: 10px;">ID</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Customer name</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Field</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Reservation date</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Start</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">End</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Status</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Total Price</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="big-reservation">
+                        
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </main>
 {% endblock %}
 {% block extra_js %}
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let calendar = document.getElementById("calendar");
+    function editRow(reservationId) {
+        // Hide text spans and show input fields
+        document.getElementById(`status-${reservationId}`).classList.add("hidden");
+        document.getElementById(`edit-status-${reservationId}`).classList.remove("hidden");
 
-        // Set default value to today
-        let today = new Date().toISOString().split("T")[0];
-        calendar.value = today;
-        
-        // Load reservations on date change
-        calendar.addEventListener("change", function () {
-            loadReservations(calendar.value);
-        });
-
-        // Load reservations when the page loads
-        loadReservations(today);
-    });
-
-    // example function please fix
-    function loadReservations(date) {
-        fetch(`/api/reservations/?date=${date}`)
-            .then(response => response.json())
-            .then(data => {
-                ["small", "medium", "large"].forEach(size => {
-                    let tableBody = document.getElementById(`table-${size}`);
-                    tableBody.innerHTML = ""; // Clear previous data
-
-                    data[size].forEach(reservation => {
-                        let row = document.createElement("tr");
-                        row.innerHTML = `
-                            <td class="border p-2">${reservation.id}</td>
-                            <td class="border p-2">${reservation.user}</td>
-                            <td class="border p-2">${reservation.time}</td>
-                            <td class="border p-2">
-                                <span class="px-2 py-1 rounded-md ${getStatusColor(reservation.status)}">${reservation.status}</span>
-                            </td>
-                            <td class="border p-2">
-                                <button onclick="confirmReservation(${reservation.id})" class="bg-green-500 text-white px-2 py-1 rounded-md mr-2">Confirm</button>
-                                <button onclick="editReservation(${reservation.id})" class="bg-blue-500 text-white px-2 py-1 rounded-md">Edit</button>
-                            </td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
-                });
-            });
+        // Change button states
+        document.getElementById(`editStatus-btn-${reservationId}`).classList.add("hidden");
+        document.getElementById(`saveStatus-btn-${reservationId}`).classList.remove("hidden");
     }
+    function saveRow(reservationId) {
+        // Hide text spans and show input fields
+        document.getElementById(`status-${reservationId}`).classList.remove("hidden");
+        document.getElementById(`edit-status-${reservationId}`).classList.add("hidden");
 
-    function getStatusColor(status) {
-        if (status === "Pending") return "bg-yellow-300";
-        if (status === "Confirmed") return "bg-green-300";
-        if (status === "Canceled") return "bg-red-300";
-        return "bg-gray-300";
-    }
-
-    function confirmReservation(id) {
-        fetch(`/api/reservations/confirm/${id}/`, { method: "POST" })
-            .then(response => response.json())
-            .then(() => {
-                let selectedDate = document.getElementById("calendar").value;
-                loadReservations(selectedDate);
-            });
-    }
-
-    function editReservation(id) {
-        alert("Edit function not implemented yet!");
+        // Change button states
+        document.getElementById(`editStatus-btn-${reservationId}`).classList.remove("hidden");
+        document.getElementById(`saveStatus-btn-${reservationId}`).classList.add("hidden");
     }
 </script>
+
 {% endblock %}
