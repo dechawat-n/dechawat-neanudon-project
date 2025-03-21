@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets, status, permissions, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.decorators import api_view, action
@@ -24,6 +24,33 @@ class FieldViewSet(viewsets.ModelViewSet):
 class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.all().order_by('-created_at')
     serializer_class = ReservationSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['customer_name', 'phone', 'status']
+
+    def get_queryset(self):
+        """ปรับ queryset ตาม query parameters"""
+        queryset = self.queryset
+        
+        # กรองตาม field ID
+        field_id = self.request.query_params.get('field')
+        if field_id:
+            queryset = queryset.filter(field_id=field_id)
+            
+        # กรองตามวันที่
+        date = self.request.query_params.get('date')
+        if date:
+            try:
+                reservation_date = datetime.strptime(date, '%Y-%m-%d').date()
+                queryset = queryset.filter(reservation_date=reservation_date)
+            except ValueError:
+                pass
+        
+        # กรองตามสถานะ
+        status = self.request.query_params.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+            
+        return queryset
 
     def get_permissions(self):
         if self.action in ['confirm', 'cancel']:

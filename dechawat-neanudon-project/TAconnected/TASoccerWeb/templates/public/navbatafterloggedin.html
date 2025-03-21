@@ -55,7 +55,6 @@
                         <hr class="my-1">
                         <a href="{% url 'edituser' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">แก้ไขข้อมูลผู้ใช้</a>
                         <a href="{% url 'my-reservations' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">การจองของฉัน</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">การจองของฉัน</a>
                         {% if request.user.is_superuser %}
                             <a href="{% url 'admin_dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-500">Admin Dashboard</a>
                         {% endif %}
