@@ -4,11 +4,12 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google" content="notranslate">
+    <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
     <title>{% block title %}T.A.SOCCER{% endblock %}</title>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'output.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -25,10 +26,10 @@
             <div class="hidden md:flex space-x-6 text-gray-700 font-medium">
                 <ul class="flex justify-between items-center gap-7 text-lg">
                     <li><a href="{% url 'home-th' %}" class="hover:text-red-600">หน้าหลัก</a></li>
-                    <li><a href="#" class="hover:text-red-600">เกี่ยวกับเรา</a></li>
-                    <li><a href="#" class="hover:text-red-600">กิจกรรม</a></li>
-                    <li><a href="#" class="hover:text-red-600">แกลอรี่</a></li>
-                    <li><a href="#" class="hover:text-red-600">ติดต่อเรา</a></li>
+                    <li><a href="{% url 'aboutus' %}" class="hover:text-red-600">เกี่ยวกับเรา</a></li>
+                    <li><a href="{% url 'guide' %}" class="hover:text-red-600">วิธีจองสนาม</a></li>
+                    <li><a href="{% url 'gallery' %}" class="hover:text-red-600">แกลลอรี่</a></li>
+                    <li><a href="{% url 'contactUs' %}" class="hover:text-red-600">ติดต่อเรา</a></li>
                 </ul>
             </div>
             <!-- right login button -->
@@ -46,10 +47,10 @@
                 <!-- Center the items -->
                 <div class="flex flex-col justify-center items-center mt-20" style="gap: 20px;">
                     <a href="{% url 'home-th' %}" class="text-2xl hover:text-red-600">หน้าหลัก</a>
-                    <a href="#" class="text-2xl focus:text-red-600">เกี่ยวกับเรา</a>
-                    <a href="#" class="text-2xl focus:text-red-600">กิจกรรม</a>
-                    <a href="#" class="text-2xl focus:text-red-600">แกลอรี่</a>
-                    <a href="#" class="text-2xl focus:text-red-600">ติดต่อเรา</a>
+                    <a href="{% url 'aboutus' %}" class="text-2xl focus:text-red-600">เกี่ยวกับเรา</a>
+                    <a href="{% url 'guide' %}" class="text-2xl focus:text-red-600">วิธีจองสนาม</a>
+                    <a href="{% url 'gallery' %}" class="text-2xl focus:text-red-600">แกลอรี่</a>
+                    <a href="{% url 'contactUs' %}" class="text-2xl focus:text-red-600">ติดต่อเรา</a>
                     <a href="{% url 'login-th' %}" class="bg-red-600 rounded-full px-6 py-2 hover:bg-red-500 text-white text-2xl">เข้าสู่ระบบ</a>
                 </div>
             </div>
@@ -69,22 +70,19 @@
 
     {% block extra_js %}
     <script>
-        (function() {
-          const menuBtn = document.getElementById('menu-btn');
-          const mobileMenu = document.getElementById('menu');
-          
-          if (menuBtn && mobileMenu) { 
-            menuBtn.addEventListener('click', () => {
-              mobileMenu.classList.toggle('hidden');
-            });
+        const menuBtn = document.getElementById('menu-btn');
+        const menu = document.getElementById('menu');
+      
+        menuBtn.addEventListener('click', () => {
+          menu.classList.toggle('hidden');
+        });
         
-            document.addEventListener("click", (event) => {
-              if (menuBtn && mobileMenu && !menuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
-                mobileMenu.classList.add("hidden");
-              }
+        // Close when clicking outside
+        document.addEventListener("click", (event) => {
+                if (!button.contains(event.target) && !menu.contains(event.target)) {
+                    menu.classList.add("hidden");
+                }
             });
-          }
-        })();
       </script>
     {% endblock %}
 </body>

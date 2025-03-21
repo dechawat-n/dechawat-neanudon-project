@@ -1,0 +1,271 @@
+{% extends 'private/base.html' %}
+{% block content %}
+<!-- Main Content -->
+<main class="flex-1 p-6">
+    <!-- Dashboard Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-lg shadow" style="padding: 10px;">
+            <h3 class="text-2xl font-semibold">Total Users</h3>
+            <p class="text-2xl font-bold">{{user_count}}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow" style="padding: 10px;">
+            <h3 class="text-2xl font-semibold">Active Reservations</h3>
+            <p class="text-2xl font-bold">{{reservation_count}}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow" style="padding: 10px;">
+            <h3 class="text-2xl font-semibold">Pending Reservation</h3>
+            <p class="text-2xl font-bold">{{pending_count}}</p>
+        </div>
+        <div id="login-status" 
+         data-loggedin="{{ user.is_authenticated|yesno:"True,False" }}"
+         style="display:none;">
+        </div>
+    </div>
+
+    <!-- pending reservation -->
+    <div class="max-w-6xl mx-auto bg-white p-6 shadow-md rounded-md mt-3">
+        <h2 class="text-2xl font-semibold mb-2">Pending Reservations</h2>
+        <!-- 🔹 Tables for Different Field Sizes -->
+        <div id="reservationTables">
+            <!-- must be fix to match the field size later na now got value from LoginView.py-->
+            <div class="mb-6">
+                
+                <!-- table for big -->
+                <table class="w-full border border-gray-300">
+                    <thead class="border">
+                        <tr class="bg-gray-200 border" style="border: 1px solid black;">
+                            <!-- <th class="border p-2">ID</th> -->
+                            <th class="border p-2 text-xl" style="padding: 10px;">ID</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Customer name</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Field</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Reservation date</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Start</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">End</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Status</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Total Price</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="">
+                        {% for reservation in reservation %}
+                        {% if reservation.status == 'pending' %}
+                            <tr>
+                                <td class="border p-2 text-xl">{{reservation.id}}</td>
+                                <td class="border p-2 text-xl">{{reservation.customer_name}}</td> 
+                                <td class="border p-2 text-xl">{{reservation.field}}</td>
+                                <td class="border p-2 text-xl">{{reservation.reservation_date}}</td>
+                                <td class="border p-2 text-xl">{{reservation.start_time}}</td>
+                                <td class="border p-2 text-xl">{{reservation.end_time}}</td> 
+                                <td class="border p-2 text-xl">
+                                    <span
+                                    id="status-{{reservation.id}}" 
+                                    style="color: 
+                                    {% if reservation.status == 'cancelled' %}red
+                                    {% elif reservation.status == 'booked' %}green
+                                    {% else %}darkgoldenrod
+                                    {% endif %};">
+                                    {{reservation.status}}</span>
+                                    <select id="edit-status-{{ reservation.id }}" class="hidden border rounded" style="cursor: pointer;">
+                                        <option value="Pending" {% if reservation.status == 'pending' %}selected{% endif %}>pending</option>
+                                        <option value="Confirmed" {% if reservation.status == 'booked' %}selected{% endif %}>confirmed</option>
+                                        <option value="Cancelled" {% if reservation.status == 'cancelled' %}selected{% endif %}>cancelled</option>
+                                    </select>    
+                                </td>
+                                <td class="border p-2 text-xl">{{reservation.total_price}}</td>
+                                <td class="border p-2 text-xl" style="text-align: center;">
+                                    {% if reservation.status != 'pending' %}
+                                    <button onclick="editRow({{ reservation.id }})" id="editStatus-btn-{{ reservation.id }}" class="px-2 rounded" style="background-color: #8B8000; cursor: pointer;">Edit</button>
+                                    <button onclick="saveRow({{ reservation.id }})" id="saveStatus-btn-{{ reservation.id }}" class="px-2 rounded hidden" style="background-color: green; cursor: pointer;">Save</button>
+                                    {% else %}
+                                    <div class="flex">
+    
+                                    
+                                        <button onclick="confirmRow({{ reservation.id }})" id="confirm-btn-{{ reservation.id }}" class="px-2 rounded" style="background-color: green; cursor: pointer;">Confirm</button>
+                                        <button onclick="cancelRow({{ reservation.id }})" id="cancel-btn-{{ reservation.id }}" class="px-2 rounded" style="background-color: red; cursor: pointer;">Cancel</button>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                
+                            </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- for all reservation -->
+    <div class="max-w-6xl mx-auto bg-white p-6 shadow-md rounded-md mt-3">
+        <h2 class="text-2xl font-semibold mb-2">All Reservations Logs</h2>
+        <!-- 🔹 Tables for Different Field Sizes -->
+        <div id="reservationTables" style="max-height: 400px;overflow-y: auto;">
+            <!-- must be fix to match the field size later na now got value from LoginView.py-->
+            <div class="mb-6">
+                
+                <!-- table for big -->
+                <table class="w-full border border-gray-300">
+                    <thead class="border" style="position: sticky;top: 0;z-index: 2">
+                        <tr class="bg-gray-200 border" style="border: 1px solid black;">
+                            <!-- <th class="border p-2">ID</th> -->
+                            <th class="border p-2 text-xl" style="padding: 10px;">ID</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Customer name</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Field</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Reservation date</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Start</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">End</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Status</th>
+                            <th class="border p-2 text-xl" style="padding: 10px;">Total Price</th>
+                        </tr>
+                    </thead>
+                    <tbody id="">
+                        {% for reservation in reservation %}
+                        <tr>
+                            <td class="border p-2 text-xl">{{reservation.id}}</td>
+                            <td class="border p-2 text-xl">{{reservation.customer_name}}</td> 
+                            <td class="border p-2 text-xl">{{reservation.field}}</td>
+                            <td class="border p-2 text-xl">{{reservation.reservation_date}}</td>
+                            <td class="border p-2 text-xl">{{reservation.start_time}}</td>
+                            <td class="border p-2 text-xl">{{reservation.end_time}}</td> 
+                            <td class="border p-2 text-xl">
+                                <span
+                                id="status-{{reservation.id}}" 
+                                style="color: 
+                                {% if reservation.status == 'cancelled' %}red
+                                {% elif reservation.status == 'booked' %}green
+                                {% else %}darkgoldenrod
+                                {% endif %};">
+                                {{reservation.status}}</span>
+                                <select id="edit-status-{{ reservation.id }}" class="hidden border rounded" style="cursor: pointer;">
+                                    <option value="Pending" {% if reservation.status == 'pending' %}selected{% endif %}>pending</option>
+                                    <option value="Confirmed" {% if reservation.status == 'booked' %}selected{% endif %}>confirmed</option>
+                                    <option value="Cancelled" {% if reservation.status == 'cancelled' %}selected{% endif %}>cancelled</option>
+                                </select>    
+                            </td>
+                            <td class="border p-2 text-xl">{{reservation.total_price}}</td>
+                            
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</main>
+{% endblock %}
+{% block extra_js %}
+<script>
+    function confirmRow(reservationId) {
+    // เพิ่มการตรวจสอบสถานะการล็อกอิน
+    const loginStatus = document.getElementById('login-status');
+    if (!loginStatus || loginStatus.dataset.loggedin !== 'True') {
+        alert('กรุณาเข้าสู่ระบบก่อน');
+        return;
+    }
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                      (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)')?.pop() || '');
+
+    fetch(`/api/reservations/${reservationId}/confirm/`, {
+        method: 'PATCH',
+        credentials: 'include', // เพิ่ม credentials
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => {
+        // บันทึก response status และ text เพื่อดีบั๊ก
+        console.log('Response status:', response.status);
+        return response.text().then(text => {
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('Invalid JSON:', text);
+                throw new Error('Invalid JSON response');
+            }
+        });
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            const statusElement = document.getElementById(`status-${reservationId}`);
+            if (statusElement) {
+                statusElement.textContent = 'booked';
+                statusElement.style.color = 'green';
+            }
+            
+            const confirmBtn = document.getElementById(`confirm-btn-${reservationId}`);
+            const cancelBtn = document.getElementById(`cancel-btn-${reservationId}`);
+            
+            if (confirmBtn) confirmBtn.style.display = 'none';
+            if (cancelBtn) cancelBtn.style.display = 'none';
+            
+            alert('ยืนยันการจองสำเร็จ');
+        } else {
+            throw new Error(data.message || 'เกิดข้อผิดพลาด');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.message || 'เกิดข้อผิดพลาดในการยืนยันการจอง');
+    });
+}
+
+function cancelRow(reservationId) {
+    // เพิ่มการตรวจสอบสถานะการล็อกอิน
+    const loginStatus = document.getElementById('login-status');
+    if (!loginStatus || loginStatus.dataset.loggedin !== 'True') {
+        alert('กรุณาเข้าสู่ระบบก่อน');
+        return;
+    }
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                      (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)')?.pop() || '');
+
+    fetch(`/api/reservations/${reservationId}/cancel/`, {
+        method: 'PATCH',
+        credentials: 'include', // เพิ่ม credentials
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => {
+        // บันทึก response status และ text เพื่อดีบั๊ก
+        console.log('Response status:', response.status);
+        return response.text().then(text => {
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('Invalid JSON:', text);
+                throw new Error('Invalid JSON response');
+            }
+        });
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            const statusElement = document.getElementById(`status-${reservationId}`);
+            if (statusElement) {
+                statusElement.textContent = 'cancelled';
+                statusElement.style.color = 'red';
+            }
+            
+            const confirmBtn = document.getElementById(`confirm-btn-${reservationId}`);
+            const cancelBtn = document.getElementById(`cancel-btn-${reservationId}`);
+            
+            if (confirmBtn) confirmBtn.style.display = 'none';
+            if (cancelBtn) cancelBtn.style.display = 'none';
+            
+            alert('ยกเลิกการจองสำเร็จ');
+        } else {
+            throw new Error(data.message || 'เกิดข้อผิดพลาด');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.message || 'เกิดข้อผิดพลาดในการยกเลิกการจอง');
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,277 @@
+{% extends 'private/base.html' %}
+{% block content %}
+{% csrf_token %}
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+<main class="flex-1 p-6">
+    <!-- User Management Table -->
+    <div class="mt-6 bg-white p-4 rounded-lg shadow " style="padding: 10px;">
+        <h2 class="text-2xl font-semibold">User Management</h2>
+        <button onclick="addRow()" class="mt-2 mb-2 px-2 bg-green-500 text-white rounded-md" style="cursor: pointer;">Add</button>
+        <table id="userTable" class="w-full border-collapse border border-gray-300" >
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border p-2 text-xl">ID</th>
+                    <th class="border p-2 text-xl">Username</th>
+                    <th class="border p-2 text-xl">Email</th>
+                    <th class="border p-2 text-xl">Phone</th>
+                    <th class="border p-2 text-xl">Role</th>
+                    <th class="border p-2 text-xl">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="">
+                    <!-- user ID -->
+                    <td class="border p-2 text-xl">{{user.id}}</td> 
+                    <!-- username -->
+                    <td class="border p-2 text-xl">
+                        <span id="username-{{user.id}}">{{user.username}}</span>
+                        <input type="text" id="edit-username-{{user.id}}" value="{{ user.username }}" class="hidden border">
+                    </td>
+                    <!-- email -->
+                    <td class="border p-2 text-xl">
+                        <span id="email-{{user.id}}">{{user.email}}</span>
+                        <input type="email" id="edit-email-{{user.id}}" value="{{ user.email }}" class="hidden border">
+                    </td>
+                    <!-- phone number -->
+                    <td class="border p-2 text-xl">
+                        <span id="phoneNumber-{{user.id}}">{{user.phone_number}}</span>
+                        <input type="tel" id="edit-phoneNumber-{{user.id}}" value="{{ user.phone_number }}" class="hidden border">
+                    </td>
+                    <!-- role -->
+                    <td class="border p-2 text-xl" style="text-align: center;">
+                        <span id="role-{{user.id}}">
+                            {% if user.is_superuser %}
+                                Admin
+                            {% else %}
+                                User
+                            {% endif %}
+                        </span>
+                        <select id="edit-role-{{ user.id }}" class="hidden border rounded" style="cursor: pointer;">
+                            <option value="user" {% if not user.is_superuser %}selected{% endif %}>User</option>
+                            <option value="admin" {% if user.is_superuser %}selected{% endif %}>Admin</option>
+                        </select>    
+                    </td>
+                    <!-- edit button -->
+                    <td class="border p-2 text-xl" style="text-align: center;">
+                        <button onclick="editRow({{ user.id }})" id="edit-btn-{{ user.id }}" class="px-2 rounded" style="background-color: red; cursor: pointer;">Edit</button>
+                        <button onclick="saveRow({{ user.id }})" id="save-btn-{{ user.id }}" class="hidden px-2 rounded" style="background-color: green; cursor: pointer;">Save</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+{% endblock %}
+{% block extra_js %}
+<script>
+    function editRow(userId) {
+        // Hide text spans and show input fields
+        document.getElementById(`username-${userId}`).classList.add("hidden");
+        document.getElementById(`email-${userId}`).classList.add("hidden");
+        document.getElementById(`phoneNumber-${userId}`).classList.add("hidden");
+        document.getElementById(`role-${userId}`).classList.add("hidden");
+
+        document.getElementById(`edit-username-${userId}`).classList.remove("hidden");
+        document.getElementById(`edit-email-${userId}`).classList.remove("hidden");
+        document.getElementById(`edit-phoneNumber-${userId}`).classList.remove("hidden");
+        document.getElementById(`edit-role-${userId}`).classList.remove("hidden");
+
+        // Change button states
+        document.getElementById(`edit-btn-${userId}`).classList.add("hidden");
+        document.getElementById(`save-btn-${userId}`).classList.remove("hidden");
+    }
+
+    function saveRow(userId) { //function for save dont know if it work or not
+        // // Get updated values
+        // let newUsername = document.getElementById(`edit-username-${userId}`).value;
+        // let newEmail = document.getElementById(`edit-email-${userId}`).value;
+        // let newRole = document.getElementById(`edit-role-${userId}`).value;
+        
+        // // Send updated data to the backend using AJAX (Optional)
+        // fetch(`/update-user/${userId}/`, {
+        //     method: "POST",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         "X-CSRFToken": getCSRFToken()
+        //     },
+        //     body: JSON.stringify({
+        //         username: newUsername,
+        //         email: newEmail,
+        //         is_superuser: newRole === "admin"
+        //     })
+        // })
+        // .then(response => response.json())
+        // .then(data => {
+        //     if (data.success) {
+        //         // Update text spans with new values
+        //         document.getElementById(`username-${userId}`).textContent = newUsername;
+        //         document.getElementById(`email-${userId}`).textContent = newEmail;
+        //         document.getElementById(`role-${userId}`).innerHTML = newRole === "admin"
+        //             ? "<strong style='color: red;'>Admin</strong>"
+        //             : "<strong style='color: blue;'>User</strong>";
+
+        //         // Hide input fields and show text spans
+                 document.getElementById(`username-${userId}`).classList.remove("hidden");
+                 document.getElementById(`email-${userId}`).classList.remove("hidden");
+                 document.getElementById(`phoneNumber-${userId}`).classList.remove("hidden");
+                 document.getElementById(`role-${userId}`).classList.remove("hidden");
+
+                 document.getElementById(`edit-username-${userId}`).classList.add("hidden");
+                 document.getElementById(`edit-email-${userId}`).classList.add("hidden");
+                 document.getElementById(`edit-phoneNumber-${userId}`).classList.add("hidden");
+                 document.getElementById(`edit-role-${userId}`).classList.add("hidden");
+
+                 // Restore button states
+                 document.getElementById(`edit-btn-${userId}`).classList.remove("hidden");
+                 document.getElementById(`save-btn-${userId}`).classList.add("hidden");
+        //     } else {
+        //         alert("Failed to update user!");
+        //     }
+        // });
+    }
+
+    // // Function to get CSRF Token
+    // function getCSRFToken() {
+    //     let cookies = document.cookie.split(';');
+    //     for (let cookie of cookies) {
+    //         let [name, value] = cookie.trim().split('=');
+    //         if (name === 'csrftoken') {
+    //             return value;
+    //         }
+    //     }
+    //     return '';
+    //}
+    function addRow() {
+    let table = document.getElementById("userTable");
+    let rowCount = table.rows.length;  // Get the number of rows
+    let newRow = table.insertRow(rowCount);  // Insert a new row at the end
+    newRow.id = `row-new-${rowCount}`;  // Unique ID for new row
+
+    newRow.innerHTML = `
+        <td class="border p-2">New</td>
+        <td class="border p-2">
+            <input type="text" id="new-username-${rowCount}" placeholder="Enter username">
+        </td>
+        <td class="border p-2">
+            <input type="email" id="new-email-${rowCount}" placeholder="Enter email">
+        </td>
+        <td class="border p-2">
+            <input type="tel" id="new-email-${rowCount}" placeholder="Enter phone">
+        </td>
+        <td class="border p-2">
+            <select id="new-role-${rowCount}">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+        </td>
+        <td class="border p-2">
+            <button onclick="saveNewRow(${rowCount})">Save</button>
+            <button onclick="removeRow(${rowCount})">Cancel</button>
+        </td>
+    `;
+}
+
+    // Function to remove a newly added row
+    function removeRow(rowId) {
+        let row = document.getElementById(`row-new-${rowId}`);
+        row.remove();
+    }
+
+    // Function to handle saving (for now, it just logs input values)
+    function saveRow(userId) {
+    // ตรวจสอบ CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]') || 
+                      document.querySelector('input[name=csrfmiddlewaretoken]');
+
+    if (!csrfToken) {
+        console.error('CSRF token not found');
+        alert('ไม่พบ CSRF token กรุณารีเฟรชหน้าเว็บ');
+        return;
+    }
+
+    // ดึงข้อมูลที่แก้ไข
+    const usernameInput = document.getElementById(`edit-username-${userId}`);
+    const emailInput = document.getElementById(`edit-email-${userId}`);
+    const phoneNumberInput = document.getElementById(`edit-phoneNumber-${userId}`);
+    const roleInput = document.getElementById(`edit-role-${userId}`);
+
+    // ตรวจสอบ input
+    if (!usernameInput || !emailInput || !phoneNumberInput || !roleInput) {
+        console.error('One or more input elements not found');
+        alert('เกิดข้อผิดพลาดในการดึงข้อมูล');
+        return;
+    }
+
+    const username = usernameInput.value;
+    const email = emailInput.value;
+    const phoneNumber = phoneNumberInput.value;
+    const role = roleInput.value;
+
+    // ส่งข้อมูลไปยัง backend
+    fetch(`/api/users/${userId}/update/`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken.value
+        },
+        body: JSON.stringify({
+            username: username,
+            email: email,
+            phone_number: phoneNumber,
+            is_superuser: role === 'admin'
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            // อัปเดต UI
+            const usernameElement = document.getElementById(`username-${userId}`);
+            const emailElement = document.getElementById(`email-${userId}`);
+            const phoneNumberElement = document.getElementById(`phoneNumber-${userId}`);
+            const roleElement = document.getElementById(`role-${userId}`);
+
+            if (usernameElement) usernameElement.textContent = username;
+            if (emailElement) emailElement.textContent = email;
+            if (phoneNumberElement) phoneNumberElement.textContent = phoneNumber;
+            if (roleElement) roleElement.textContent = role === 'admin' ? 'Admin' : 'User';
+
+            // ซ่อนช่องอินพุต
+            if (usernameInput) usernameInput.classList.add('hidden');
+            if (emailInput) emailInput.classList.add('hidden');
+            if (phoneNumberInput) phoneNumberInput.classList.add('hidden');
+            if (roleInput) roleInput.classList.add('hidden');
+
+            // แสดงข้อความปกติ
+            if (usernameElement) usernameElement.classList.remove('hidden');
+            if (emailElement) emailElement.classList.remove('hidden');
+            if (phoneNumberElement) phoneNumberElement.classList.remove('hidden');
+            if (roleElement) roleElement.classList.remove('hidden');
+
+            // เปลี่ยนปุ่ม
+            const editBtn = document.getElementById(`edit-btn-${userId}`);
+            const saveBtn = document.getElementById(`save-btn-${userId}`);
+            
+            if (editBtn) editBtn.classList.remove('hidden');
+            if (saveBtn) saveBtn.classList.add('hidden');
+
+            alert('อัปเดตข้อมูลสำเร็จ');
+        } else {
+            throw new Error(data.message || 'เกิดข้อผิดพลาดในการอัปเดตข้อมูล');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.message || 'เกิดข้อผิดพลาดในการสื่อสารกับเซิร์ฟเวอร์');
+    });
+}
+
+</script>
+
+{% endblock %}

@@ -1,3 +1,4 @@
+from pyexpat.errors import messages
 from django.contrib import admin
 from django.db.models import Sum, Count
 from django.utils.html import format_html
@@ -125,19 +126,25 @@ class ReservationAdmin(admin.ModelAdmin):
     
     def confirm_reservation(self, request, reservation_id):
         """ยืนยันการจองจากหน้า admin"""
-        reservation = Reservation.objects.get(id=reservation_id)
-        reservation.status = 'booked'
-        reservation.save()
-        self.message_user(request, f'ยืนยันการจองสำเร็จ: {reservation}')
+        try:
+            reservation = Reservation.objects.get(id=reservation_id)
+            reservation.status = 'booked'
+            reservation.save()
+            messages.success(request, f'ยืนยันการจองสำเร็จ: {reservation}')
+        except Reservation.DoesNotExist:
+            messages.error(request, 'ไม่พบการจองที่ระบุ')
         return HttpResponseRedirect(reverse('admin:booking_reservation_changelist'))
-    
+
     def cancel_reservation(self, request, reservation_id):
-        """ยกเลิกการจองจากหน้า admin"""
-        reservation = Reservation.objects.get(id=reservation_id)
-        reservation.status = 'cancelled'
-        reservation.save()
-        self.message_user(request, f'ยกเลิกการจองสำเร็จ: {reservation}')
-        return HttpResponseRedirect(reverse('admin:booking_reservation_changelist'))
+            """ยกเลิกการจองจากหน้า admin"""
+            try:
+                reservation = Reservation.objects.get(id=reservation_id)
+                reservation.status = 'cancelled'
+                reservation.save()
+                messages.success(request, f'ยกเลิกการจองสำเร็จ: {reservation}')
+            except Reservation.DoesNotExist:
+                messages.error(request, 'ไม่พบการจองที่ระบุ')
+            return HttpResponseRedirect(reverse('admin:booking_reservation_changelist'))
     
     def confirm_bookings(self, request, queryset):
         updated = queryset.filter(status='pending').update(status='booked')

@@ -357,6 +357,11 @@ async function submitBooking(e) {
 
     } catch (error) {
         console.error('Error:', error);
-        alert('เกิดข้อผิดพลาดในการจอง: ' + error.message);
+        
+        const errorMessage = error.message.includes('ทับซ้อน') 
+            ? 'ไม่สามารถจองได้ เนื่องจากช่วงเวลานี้มีการจองแล้ว กรุณาเลือกช่วงเวลาอื่น' 
+            : 'เกิดข้อผิดพลาดในการจอง: ' + error.message;
+        
+        alert(errorMessage);
     }
 }

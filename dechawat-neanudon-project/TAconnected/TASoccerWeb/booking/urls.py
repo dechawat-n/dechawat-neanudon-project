@@ -14,6 +14,18 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/check-availability/', check_availability, name='api_check_availability'),
     path('api/create-reservation/', create_reservation, name='api_create_reservation'),
+
+
+    path('api/reservations/<int:pk>/confirm/', 
+         ReservationViewSet.as_view({'patch': 'confirm'}), 
+         name='reservation-confirm'),
+    path('api/reservations/<int:pk>/cancel/', 
+         ReservationViewSet.as_view({'patch': 'cancel'}), 
+         name='reservation-cancel'),
+
+    path('api/reservations/<int:pk>/update-status/', 
+     ReservationViewSet.as_view({'patch': 'update_status'}), 
+     name='reservation-update-status'),
     
     # หน้าเว็บต่างๆ
     path('pre_reserve/', Booking_api.pre_reservation_view, name='pre-reserve'),

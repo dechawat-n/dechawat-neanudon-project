@@ -15,7 +15,6 @@ class Reservation(models.Model):
         ('booked', 'จองแล้ว'),
         ('cancelled', 'ยกเลิก'),
     )
-    
     field = models.ForeignKey(Field, on_delete=models.CASCADE)
     reservation_date = models.DateField()
     start_time = models.TimeField()

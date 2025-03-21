@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.decorators import api_view, action
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -23,37 +24,113 @@ class FieldViewSet(viewsets.ModelViewSet):
 class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.all().order_by('-created_at')
     serializer_class = ReservationSerializer
-    
+
     def get_permissions(self):
-        if self.action in ['destroy']:
+        if self.action in ['confirm', 'cancel']:
+            permission_classes = [permissions.IsAdminUser]
+        elif self.action in ['destroy']:
             permission_classes = [permissions.IsAdminUser]
         else:
             permission_classes = [permissions.AllowAny]
         return [permission() for permission in permission_classes]
     
-    @action(detail=True, methods=['patch'], serializer_class=ReservationConfirmSerializer)
-    def confirm(self, request, pk=None):
-        """API endpoint สำหรับยืนยันการจองโดย admin"""
-        reservation = self.get_object()
-        serializer = self.get_serializer(reservation, data={'status': 'booked'}, partial=True)
-        
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_serializer_class(self):
+        if self.action in ['confirm', 'cancel']:
+            return ReservationConfirmSerializer
+        return self.serializer_class
     
-    @action(detail=True, methods=['patch'], serializer_class=ReservationConfirmSerializer)
+    @action(detail=True, methods=['patch'])
+    def confirm(self, request, pk=None):
+            """API endpoint สำหรับยืนยันการจองโดย admin"""
+            try:
+                # ดึงข้อมูลการจอง
+                reservation = self.get_object()
+                
+                # เปลี่ยนสถานะเป็นจอง
+                reservation.status = 'booked'
+                reservation.save()
+                
+                # ใช้ serializer สำหรับ confirm
+                serializer = self.get_serializer(reservation, data={'status': 'booked'}, partial=True)
+                
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response({
+                        'status': 'success', 
+                        'reservation': serializer.data
+                    })
+                else:
+                    return Response({
+                        'status': 'error', 
+                        'message': serializer.errors
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            
+            except Exception as e:
+                return Response({
+                    'status': 'error', 
+                    'message': str(e)
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['patch'])
     def cancel(self, request, pk=None):
-        """API endpoint สำหรับยกเลิกการจองโดย admin"""
-        reservation = self.get_object()
-        serializer = self.get_serializer(reservation, data={'status': 'cancelled'}, partial=True)
-        
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            """API endpoint สำหรับยกเลิกการจองโดย admin"""
+            try:
+                # ดึงข้อมูลการจอง
+                reservation = self.get_object()
+                
+                # เปลี่ยนสถานะเป็นยกเลิก
+                reservation.status = 'cancelled'
+                reservation.save()
+                
+                # ใช้ serializer สำหรับ cancel
+                serializer = self.get_serializer(reservation, data={'status': 'cancelled'}, partial=True)
+                
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response({
+                        'status': 'success', 
+                        'reservation': serializer.data
+                    })
+                else:
+                    return Response({
+                        'status': 'error', 
+                        'message': serializer.errors
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            
+            except Exception as e:
+                return Response({
+                    'status': 'error', 
+                    'message': str(e)
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+    @action(detail=True, methods=['patch'])
+    def update_status(self, request, pk=None):
+            """API endpoint สำหรับอัปเดตสถานะการจองโดย admin"""
+            try:
+                reservation = self.get_object()
+                new_status = request.data.get('status')
+                
+                if new_status not in dict(Reservation.STATUS_CHOICES):
+                    return Response({
+                        'status': 'error', 
+                        'message': 'สถานะไม่ถูกต้อง'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+                reservation.status = new_status
+                reservation.save()
+                
+                serializer = self.get_serializer(reservation)
+                return Response({
+                    'status': 'success', 
+                    'reservation': serializer.data
+                })
+            
+            except Exception as e:
+                return Response({
+                    'status': 'error', 
+                    'message': str(e)
+                }, status=status.HTTP_400_BAD_REQUEST)
+    
 
 @api_view(['GET'])
 def check_availability(request):
@@ -170,6 +247,10 @@ def create_reservation(request):
     สร้างการจองใหม่
     """
     try:
+        # ถ้าผู้ใช้ล็อกอิน ให้ใช้ชื่อผู้ใช้เป็นชื่อผู้จอง
+        if request.user.is_authenticated:
+            request.data['customer_name'] = request.user.username
+
         # แสดงข้อมูลที่ได้รับเพื่อการแก้ไขข้อผิดพลาด
         print("Received data:", request.data)
         
@@ -183,12 +264,11 @@ def create_reservation(request):
                     'message': f'ข้อมูล {field} ไม่ถูกส่งมา'
                 }, status=status.HTTP_400_BAD_REQUEST)
         
-        # แปลงเวลาให้ถูกต้อง (ถ้าจำเป็น)
+        # แปลงข้อมูล
         data = request.data.copy()
         
-        # แก้ไขกรณี 00:00
+        # กรณีพิเศษสำหรับเวลาสิ้นสุด 00:00
         if data['end_time'] == '00:00':
-            # ในกรณีที่เวลาสิ้นสุดเป็น 00:00 ไม่ต้องทำการตรวจสอบว่าเวลาเริ่มต้นน้อยกว่าเวลาสิ้นสุด
             print("Special case: End time is 00:00")
         elif data['start_time'] >= data['end_time']:
             return Response({
@@ -196,10 +276,10 @@ def create_reservation(request):
                 'message': 'เวลาเริ่มต้นต้องน้อยกว่าเวลาสิ้นสุด'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # แปลง field เป็น object
+        # ตรวจสอบสนาม
         try:
             field = Field.objects.get(id=data['field'])
-            data['field'] = field.id  # ให้แน่ใจว่าเป็น ID
+            data['field'] = field.id
         except Field.DoesNotExist:
             return Response({
                 'status': 'error',
@@ -210,52 +290,6 @@ def create_reservation(request):
         serializer = ReservationSerializer(data=data)
         
         if serializer.is_valid():
-            # ตรวจสอบการจองที่ซ้ำซ้อน
-            field_id = data['field']
-            reservation_date = data['reservation_date']
-            start_time = data['start_time']
-            end_time = data['end_time']
-            
-            # แก้ไขการตรวจสอบการซ้อนทับของเวลา
-            existing_reservations = Reservation.objects.filter(
-                field_id=field_id,
-                reservation_date=reservation_date,
-                status__in=['pending', 'booked']
-            )
-            
-            # ตรวจสอบการซ้อนทับของเวลา
-            for res in existing_reservations:
-                # กรณีพิเศษสำหรับเวลาสิ้นสุดเป็น 00:00
-                res_end = res.end_time
-                end_time_obj = datetime.strptime(end_time, '%H:%M').time()
-                
-                # ตรวจสอบการซ้อนทับ
-                is_overlap = False
-                
-                # กรณีที่ 1: เวลาเริ่มต้นของการจองใหม่อยู่ในช่วงการจองที่มีอยู่
-                if res.start_time <= datetime.strptime(start_time, '%H:%M').time() < res_end:
-                    is_overlap = True
-                    
-                # กรณีที่ 2: เวลาสิ้นสุดของการจองใหม่อยู่ในช่วงการจองที่มีอยู่
-                elif res.start_time < end_time_obj <= res_end:
-                    is_overlap = True
-                    
-                # กรณีที่ 3: การจองใหม่ครอบคลุมการจองที่มีอยู่ทั้งหมด
-                elif datetime.strptime(start_time, '%H:%M').time() <= res.start_time and end_time_obj >= res_end:
-                    is_overlap = True
-                
-                # กรณีพิเศษสำหรับเวลาสิ้นสุดเป็น 00:00 ของทั้งสองการจอง
-                if end_time == '00:00' and res_end.hour == 0 and res_end.minute == 0:
-                    # ถ้าเวลาเริ่มต้นของอย่างน้อยหนึ่งในสองการจองอยู่ในช่วงเวลาของอีกการจอง
-                    if datetime.strptime(start_time, '%H:%M').time() >= res.start_time or res.start_time >= datetime.strptime(start_time, '%H:%M').time():
-                        is_overlap = True
-                
-                if is_overlap:
-                    return Response({
-                        'status': 'error',
-                        'message': f'ช่วงเวลา {start_time}-{end_time} ซ้อนทับกับการจองอื่น ({res.start_time}-{res.end_time})'
-                    }, status=status.HTTP_400_BAD_REQUEST)
-            
             # บันทึกการจอง
             reservation = serializer.save()
             

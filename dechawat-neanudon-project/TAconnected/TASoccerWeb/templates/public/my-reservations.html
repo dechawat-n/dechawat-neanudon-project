@@ -1,0 +1,96 @@
+{% extends 'public/base.html' %}
+{% block title %}การจองของฉัน{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="flex justify-center items-center min-h-screen bg-cover bg-center py-24" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url({% static 'images/test.jpg' %});">
+    <!-- main container -->
+    <div class="p-6 shadow-lg bg-white rounded-md w-full max-w-6xl text-gray-700">
+        <h1 class="text-3xl block text-center font-semibold mb-6">การจองของฉัน</h1>
+        
+        <!-- Tabs for filtering reservations -->
+        <div class="flex justify-center mb-6 border-b">
+            <button id="all-tab" class="px-4 py-2 font-medium text-lg border-b-2 border-red-500" onclick="filterReservations('all')">ทั้งหมด</button>
+            <button id="pending-tab" class="px-4 py-2 font-medium text-lg" onclick="filterReservations('pending')">รอการยืนยัน</button>
+            <button id="booked-tab" class="px-4 py-2 font-medium text-lg" onclick="filterReservations('booked')">จองแล้ว</button>
+            <button id="cancelled-tab" class="px-4 py-2 font-medium text-lg" onclick="filterReservations('cancelled')">ยกเลิก</button>
+        </div>
+        
+        {% if reservations %}
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700">
+                            <th class="p-3 border">วันที่จอง</th>
+                            <th class="p-3 border">สนาม</th>
+                            <th class="p-3 border">เวลา</th>
+                            <th class="p-3 border">ราคา</th>
+                            <th class="p-3 border">สถานะ</th>
+                            <th class="p-3 border">วันที่ทำรายการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reservation in reservations %}
+                        <tr class="border text-center reservation-row" data-status="{{ reservation.status }}">
+                            <td class="p-3 border">{{ reservation.reservation_date }}</td>
+                            <td class="p-3 border">{{ reservation.field.name }}</td>
+                            <td class="p-3 border">{{ reservation.start_time }} - {{ reservation.end_time }}</td>
+                            <td class="p-3 border">{{ reservation.total_price }} บาท</td>
+                            <td class="p-3 border">
+                                <span class="px-2 py-1 rounded-full text-white
+                                    {% if reservation.status == 'pending' %}
+                                        bg-yellow-500
+                                    {% elif reservation.status == 'booked' %}
+                                        bg-green-500
+                                    {% else %}
+                                        bg-red-500
+                                    {% endif %}">
+                                    {% if reservation.status == 'pending' %}
+                                        รอการยืนยัน
+                                    {% elif reservation.status == 'booked' %}
+                                        จองแล้ว
+                                    {% else %}
+                                        ยกเลิก
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td class="p-3 border">{{ reservation.created_at|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-10">
+                <p class="text-xl">คุณยังไม่มีประวัติการจอง</p>
+                <a href="{% url 'pre-reserve' %}" class="mt-4 inline-block bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500">จองสนามเลย</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function filterReservations(status) {
+        // Reset all tabs
+        document.getElementById('all-tab').classList.remove('border-red-500');
+        document.getElementById('pending-tab').classList.remove('border-red-500');
+        document.getElementById('booked-tab').classList.remove('border-red-500');
+        document.getElementById('cancelled-tab').classList.remove('border-red-500');
+        
+        // Highlight the selected tab
+        document.getElementById(status + '-tab').classList.add('border-red-500');
+        
+        // Show/hide rows based on status
+        const rows = document.querySelectorAll('.reservation-row');
+        rows.forEach(row => {
+            if (status === 'all' || row.dataset.status === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}
