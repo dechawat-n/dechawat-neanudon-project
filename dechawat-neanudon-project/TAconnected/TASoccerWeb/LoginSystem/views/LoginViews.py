@@ -340,3 +340,7 @@ def admin_gallery(request):
 def contactUsView(request):
     logged_in = check_login(request)
     return render(request, "public/contactus.html", logged_in)
+
+def guideView(request):
+    logged_in = check_login(request)
+    return render(request, "public/guide.html" , logged_in)

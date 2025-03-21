@@ -25,7 +25,7 @@ urlpatterns = [
     path("gallery/", LoginViews.gallery_view, name="gallery"),
 
     path("contact-us/", LoginViews.contactUsView, name="contactUs"),
-
+    path("guide/", LoginViews.guideView, name="guide")
     #for test
     #path('passwordresetfortesting/', LoginViews.PasswordResetSentForTesting, name='passwordresettest'),
     

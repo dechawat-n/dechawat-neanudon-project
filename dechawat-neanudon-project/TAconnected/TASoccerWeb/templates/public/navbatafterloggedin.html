@@ -25,7 +25,7 @@
                 <ul class="flex items-center gap-7">
                     <li><a href="{% url 'home-th' %}" class="hover:text-red-600">หน้าหลัก</a></li>
                     <li><a href="{% url 'aboutus' %}" class="hover:text-red-600">เกี่ยวกับเรา</a></li>
-                    <li><a href="#" class="hover:text-red-600">ราคาและการจอง</a></li>
+                    <li><a href="{% url 'guide' %}" class="hover:text-red-600">วิธีจองสนาม</a></li>
                     <li><a href="{% url 'gallery' %}" class="hover:text-red-600">แกลอรี่</a></li>
                     <li><a href="{% url 'contactUs' %}" class="hover:text-red-600">ติดต่อเรา</a></li>
                 </ul>
@@ -47,7 +47,7 @@
                         <div class="md:hidden flex flex-col mt-10" style="gap: 10px;">
                             <a href="{% url 'home-th' %}" class="block px-4 py-2 text-sm text-gray-700">หน้าหลัก</a>
                             <a href="{% url 'aboutus' %}" class="block px-4 py-2 text-sm text-gray-700">เกี่ยวกับเรา</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700">กิจกรรม</a>
+                            <a href="{% url 'guide' %}" class="block px-4 py-2 text-sm text-gray-700">วิธีจองสนาม</a>
                             <a href="{% url 'gallery' %}" class="block px-4 py-2 text-sm text-gray-700">แกลอรี่</a>
                             <a href="{% url 'contactUs' %}" class="block px-4 py-2 text-sm text-gray-700">ติดต่อเรา</a>
                         </div>

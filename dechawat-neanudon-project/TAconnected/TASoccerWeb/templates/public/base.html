@@ -27,7 +27,7 @@
                 <ul class="flex justify-between items-center gap-7 text-lg">
                     <li><a href="{% url 'home-th' %}" class="hover:text-red-600">หน้าหลัก</a></li>
                     <li><a href="{% url 'aboutus' %}" class="hover:text-red-600">เกี่ยวกับเรา</a></li>
-                    <li><a href="#" class="hover:text-red-600">ราคาและการจอง</a></li>
+                    <li><a href="{% url 'guide' %}" class="hover:text-red-600">วิธีจองสนาม</a></li>
                     <li><a href="{% url 'gallery' %}" class="hover:text-red-600">แกลลอรี่</a></li>
                     <li><a href="{% url 'contactUs' %}" class="hover:text-red-600">ติดต่อเรา</a></li>
                 </ul>
@@ -47,10 +47,10 @@
                 <!-- Center the items -->
                 <div class="flex flex-col justify-center items-center mt-20" style="gap: 20px;">
                     <a href="{% url 'home-th' %}" class="text-2xl hover:text-red-600">หน้าหลัก</a>
-                    <a href="#" class="text-2xl focus:text-red-600">เกี่ยวกับเรา</a>
-                    <a href="#" class="text-2xl focus:text-red-600">กิจกรรม</a>
-                    <a href="#" class="text-2xl focus:text-red-600">แกลอรี่</a>
-                    <a href="#" class="text-2xl focus:text-red-600">ติดต่อเรา</a>
+                    <a href="{% url 'aboutus' %}" class="text-2xl focus:text-red-600">เกี่ยวกับเรา</a>
+                    <a href="{% url 'guide' %}" class="text-2xl focus:text-red-600">วิธีจองสนาม</a>
+                    <a href="{% url 'gallery' %}" class="text-2xl focus:text-red-600">แกลอรี่</a>
+                    <a href="{% url 'contactUs' %}" class="text-2xl focus:text-red-600">ติดต่อเรา</a>
                     <a href="{% url 'login-th' %}" class="bg-red-600 rounded-full px-6 py-2 hover:bg-red-500 text-white text-2xl">เข้าสู่ระบบ</a>
                 </div>
             </div>

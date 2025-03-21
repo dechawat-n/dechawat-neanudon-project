@@ -1,0 +1,29 @@
+{% extends 'public/base.html' %}
+{% block title %}เกี่ยวกับเรา{% endblock %}
+{% load static %}
+{% block content %}
+<div class="flex justify-center items-center h-screen bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url({% static 'images/test.jpg' %});">
+    <!-- login container -->
+    <div class="p-6 shadow-lg bg-white rounded-md w-full max-w-6xl text-gray-700 mt-20">
+        <h1 class="text-3xl block text-center font-semibold">วิธีจองสนาม</h1>
+        <div class="flex justify-center mt-5">
+            <a href="{% url 'pre-reserve' %}">
+                <img src="{% static 'images/lookup.png' %}" alt="guide">
+            </a>
+            
+        </div>
+        
+        <p class="text-lg block text-center font-semibold mt-5">
+            ลูกค้าท่านใดต้องการจองสนามต้องสมัครสมาชิกและเข้าสู่ระบบให้เรียบร้อย เมื่อเข้าสู่ระบบเรียบร้อยแล้วคลิกที่ปุ่มสีแดงได้เลย!
+            <a href="{% url 'pre-reserve' %}" class="text-red-600 hover:underline">จองเลย!</a>
+        </p>
+        <!-- contact us -->
+        <div class="flex justify-center mt-3">
+            <p class="text-lg">สอบถามข้อมูลเพิ่มเติม <a href="#" class="text-red-600 hover:underline">ติดต่อเรา</a></p>
+        </div>
+        
+    </div>
+</div>
+
+        
+{% endblock %}
