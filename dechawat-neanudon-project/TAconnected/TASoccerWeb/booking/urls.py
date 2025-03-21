@@ -1,18 +1,24 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import Booking_api
+from .api_views import FieldViewSet, ReservationViewSet, check_availability, create_reservation
 from LoginSystem.views import LoginViews
-from .views_admin import fields_management_view
+
+# สร้าง Router สำหรับ REST API
+router = DefaultRouter()
+router.register(r'fields', FieldViewSet)
+router.register(r'reservations', ReservationViewSet)
 
 urlpatterns = [
-    path('reservation/', Booking_api.reservation_view, name='reservation'),
-    path('api/fields/', Booking_api.get_fields, name='get_fields'),
-    path('api/create-reservation/', Booking_api.create_reservation, name='create_reservation'),
-    path('api/check-availability/', Booking_api.check_availability, name='check_availability'),  # เพิ่มบรรทัดนี้
-    path('pre_reserve/', Booking_api.pre_reservation_view, name='pre-reserve'),
+    # API Endpoints
+    path('api/', include(router.urls)),
+    path('api/check-availability/', check_availability, name='api_check_availability'),
+    path('api/create-reservation/', create_reservation, name='api_create_reservation'),
     
-    path('big-reservation/',Booking_api.BigReserveView,name='bigreserve'),
-    path('medium-reservation/',Booking_api.MediumReserveView,name='mediumreserve'),
-    path('small-reservation/',Booking_api.SmallReserveView,name='smallreserve'),
-    path('admin/fields-management/', fields_management_view, name='fields_management'),
-
+    # หน้าเว็บต่างๆ
+    path('pre_reserve/', Booking_api.pre_reservation_view, name='pre-reserve'),
+    path('reservation/', Booking_api.reservation_view, name='reservation'),
+    path('big-reservation/', Booking_api.BigReserveView, name='bigreserve'),
+    path('medium-reservation/', Booking_api.MediumReserveView, name='mediumreserve'),
+    path('small-reservation/', Booking_api.SmallReserveView, name='smallreserve'),
 ]

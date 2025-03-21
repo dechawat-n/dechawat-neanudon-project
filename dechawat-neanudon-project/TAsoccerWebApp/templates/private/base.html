@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{% static 'output.css' %}">
+</head>
+<body style="background-color: #f3f4f6;">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sticky text-white w-64 p-4" style="background-color: #101828;">
+            <button onclick="toggleSidebar()" class="mb-4 p-2 rounded-md hover:bg-gray-700" style="background-color: #1e2939; cursor: pointer;">
+                ☰
+            </button>
+            <nav class="space-y-4">
+                <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                    <span>🏠</span> <span class="sidebarText" >Dashboard</span>
+                </a>
+                <a href="{% url 'admin_userManagement' %}" class="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                    <span>👤</span> <span class="sidebarText" >Users</span>
+                </a>
+                <a href="{% url 'admin_reservationManagement' %}" class="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                    <span>📅</span> <span class="sidebarText" >Reservations</span>
+                </a>
+                <a href="#" class="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                    <span>💳</span> <span class="sidebarText" >Payments</span>
+                </a>
+                <a href="{% url 'admin-gallery' %}" class="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                    <span>⚙️</span> <span class="sidebarText" >Settings</span>
+                </a>
+                <a href="{% url 'home-th' %}" class="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                    <span>🚪</span> <span class="sidebarText" >Logout</span>
+                </a>
+            </nav>
+        </aside>
+        {% block content %}
+        <!-- for main content of the page -->
+        {% endblock %}
+    </div>
+    <script>
+        function toggleSidebar() {
+            let sidebar = document.getElementById("sidebar");
+            sidebar.classList.toggle("w-10");
+            sidebar.classList.toggle("w-64");
+    
+            // Select all elements with class "sidebarText"
+            let sidebarTexts = document.querySelectorAll(".sidebarText");
+    
+            // Toggle "hidden" class for each sidebarText element
+            sidebarTexts.forEach(text => {
+                text.classList.toggle("hidden");
+            });
+        }
+    </script>
+    {% block extra_js %}
+    <!-- for script -->
+    {% endblock %}
+</body>
+</html>

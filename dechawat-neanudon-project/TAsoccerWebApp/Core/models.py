@@ -6,7 +6,7 @@ from django.utils import timezone
 
 class CustomerUsers(AbstractUser):
     phone_number = models.CharField(max_length=10, blank=True, null=True)
-
+    
     # Remove the Meta class entirely or remove db_table setting
     def __str__(self):
         return f" {self.username}"

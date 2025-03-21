@@ -187,9 +187,11 @@
                     </div>
                     <button onclick="submitBooking()" 
                         id="bookingButton" 
-                        class="w-full p-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed" 
-                        disabled>
-                        จอง
+                        class="w-full p-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:bg-gray-400" 
+                        {% if not loggedin %}disabled{% endif %}
+                        style="{% if loggedin %} cursor: pointer; {% else %} cursor: not-allowed; {% endif %}">
+                        
+                        {% if loggedin %}จอง{% else %}กรุณาเข้าสู่ระบบ{% endif %}
                     </div></a>
                 </div>
             </div>
@@ -198,6 +200,21 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const dateInput = document.getElementById("date");
+            const today = new Date();
+            const maxDate = new Date();
+
+            maxDate.setDate(today.getDate() + 7); // Add 7 days
+
+            // Format the date as YYYY-MM-DD
+            const formattedMaxDate = maxDate.toISOString().split("T")[0];
+
+            dateInput.setAttribute("min", today.toISOString().split("T")[0]);
+            dateInput.setAttribute("max", formattedMaxDate);
+        });
+    </script>
     <script>
         let selectedTimes = [];
         const pricePerHour = 700;

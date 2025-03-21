@@ -1,0 +1,164 @@
+{% extends 'public/base.html' %}
+{% block title %}เกี่ยวกับเรา{% endblock %}
+{% load static %}
+{% block content %}
+<div class="flex justify-center items-center h-screen bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url({% static 'images/test.jpg' %});">
+    <!-- container -->
+    <div class="p-6 shadow-lg bg-white rounded-md w-full max-w-md text-gray-700">
+        <h1 class="text-3xl block text-center font-semibold">ข้อมูลของฉัน</h1>
+        <!-- email -->
+        <div>
+            <div class="flex gap-2 items-baseline">
+                <h1 class="block text-base mb-1 mt-2 text-gray-700">อีเมลล์</h1>
+                <p id="email-error" class="text-base text-sm text-red-500"></p> <!-- error handle -->
+            </div>
+            <span id="emailText" class="text-gray-700">{{user.email}}</span>
+            <input type="text" id="emailInput" value="{{user.email}}" class="hidden px-3 py-1 border rounded-lg">
+            <button id="emailButton" onclick="toggleEdit('email')" class="text-blue-500 hover:underline" style="cursor: pointer;">Edit</button>
+        </div>
+        <!-- phonenumber -->
+        <div>
+            <div class="flex gap-2 items-baseline">
+                <h1 class="block text-base mb-1 mt-2 text-gray-700">เบอร์โทรศัพท์</h1>
+                <p id="phone-error" class="text-base text-sm text-red-500"></p> <!-- error handle -->
+            </div>
+            <span id="phoneNumText" class="text-gray-700">{{user.phone_number}}</span>
+            <input type="tel" maxlength="10" id="phoneNumInput" value="{{user.phone_number}}" class="hidden px-3 py-1 border rounded-lg">
+            <button id="phoneNumButton" onclick="toggleEdit('phoneNum')" class="text-blue-500 hover:underline" style="cursor: pointer;">Edit</button>
+        </div>
+        <!-- username -->
+        <div>
+            <div class="flex gap-2 items-baseline">
+                <h1 class="block text-base mb-1 mt-2 text-gray-700">ชื่อผู้ใช้</h1>
+                <p id="username-error" class="text-base text-sm text-red-500"></p> <!-- error handle -->
+            </div>
+            <span id="usernameText" class="text-gray-700">{{user.username}}</span>
+            <input type="text" id="usernameInput" value="{{user.username}}" class="hidden px-3 py-1 border rounded-lg">
+            <button id="usernameButton" onclick="toggleEdit('username')" class="text-blue-500 hover:underline" style="cursor: pointer;">Edit</button>
+        </div>
+        <!-- password -->
+        <div>
+            <div class="flex gap-2 items-baseline">
+                <h1 class="block text-base mb-1 mt-2 text-gray-700">รหัสผ่าน</h1>
+                <p id="password-error" class="text-base text-sm text-red-500"></p><p id="confirm-password-error" class="text-base text-sm text-red-500"></p> </p> <!-- error handle -->
+            </div>
+            <span id="passwordText" class="text-gray-700">••••••••</span>
+            <input type="password" id="passwordInput" value="" class="hidden px-3 py-1 border rounded-lg mb-2">
+            <input type="password" id="reEnterPasswordInput" value="" class="hidden px-3 py-1 border rounded-lg">
+            <button id="passwordButton" onclick="toggleEdit('password')" class="text-blue-500 hover:underline" style="cursor: pointer;">Edit</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    function toggleEdit(id) {
+        const textElement = document.getElementById(id + "Text");
+        const inputElement = document.getElementById(id + "Input");
+        const buttonElement = document.getElementById(id + "Button");
+        const reEnterPasswordInput = document.getElementById("reEnterPasswordInput")
+
+        if (inputElement.classList.contains("hidden")) {
+            textElement.classList.add("hidden");
+            inputElement.classList.remove("hidden");
+            buttonElement.innerText = "Save";
+            if (id === "password") {
+                
+                reEnterPasswordInput.classList.remove("hidden");
+            }
+        } else {
+            if (id === "password") {
+                    textElement.innerText = "••••••••"; // Mask password again
+                    reEnterPasswordInput.classList.add("hidden")
+                } else {
+                    textElement.innerText = inputElement.value;
+                }
+            textElement.classList.remove("hidden");
+            inputElement.classList.add("hidden");
+            buttonElement.innerText = "Edit";
+        }
+    }
+</script>
+<script>
+    // Select input fields
+        const username = document.getElementById("usernameInput");
+        const email = document.getElementById("emailInput");
+        const phone = document.getElementById("phoneNumInput");
+        const password = document.getElementById("passwordInput");
+        const confirmPassword = document.getElementById("reEnterPasswordInput");
+
+        // Reusable function for validation styling
+        function updateBorder(input, isValid) {
+            if (isValid) {
+                input.style.border = "1px solid green"; // Green border for valid input
+            } else {
+                input.style.border = "1px solid red"; // Red border for invalid input
+            }
+        }
+
+        // Validation functions
+        function validateUsername() {
+            const error = document.getElementById("username-error");
+            const isValid = username.value.trim().length >= 3;
+            error.textContent = isValid ? "" : "ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร";
+            updateBorder(username, isValid);
+        }
+
+        function validateEmail() {
+            const error = document.getElementById("email-error");
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const isValid = emailPattern.test(email.value.trim());
+            error.textContent = isValid ? "" : "รูปแบบอีเมลไม่ถูกต้อง";
+            updateBorder(email, isValid);
+        }
+
+        function validatePhone() {
+            const error = document.getElementById("phone-error");
+            const phonePattern = /^\d{10}$/;
+            const isValid = phonePattern.test(phone.value.trim());
+            error.textContent = isValid ? "" : "หมายเลขโทรศัพท์ต้องมี 10 หลัก";
+            updateBorder(phone, isValid);
+        }
+
+        function validatePassword() {
+            const error = document.getElementById("password-error");
+            const isValid = password.value.length >= 5;
+            error.textContent = isValid ? "" : "รหัสผ่านต้องมีอย่างน้อย 5 ตัวอักษร";
+            updateBorder(password, isValid);
+
+            validateConfirmPassword();
+        }
+
+        function validateConfirmPassword() {
+            const error = document.getElementById("confirm-password-error");
+            const isValid = password.value === confirmPassword.value && confirmPassword.value.length;
+            error.textContent = isValid ? "" : "รหัสผ่านไม่ตรงกัน";
+            updateBorder(confirmPassword, isValid);
+        }
+
+        // Attach live validation event listeners
+        username.addEventListener("input", validateUsername);
+        email.addEventListener("input", validateEmail);
+        phone.addEventListener("input", validatePhone);
+        password.addEventListener("input", validatePassword);
+        confirmPassword.addEventListener("input", validateConfirmPassword);
+
+        // Prevent form submission if there are errors
+        document.getElementById("registerForm").addEventListener("submit", function(event) {
+            validateUsername();
+            validateEmail();
+            validatePhone();
+            validatePassword();
+            validateConfirmPassword();
+
+            // Check if any error exists
+            const errors = document.querySelectorAll(".error-message");
+            let hasError = false;
+            errors.forEach(error => {
+                if (error.textContent) hasError = true;
+            });
+
+            if (hasError) event.preventDefault();  // Stop form submission if errors exist
+        });
+</script>
+{% endblock %}

@@ -69,19 +69,22 @@
 
     {% block extra_js %}
     <script>
-        const menuBtn = document.getElementById('menu-btn');
-        const menu = document.getElementById('menu');
-      
-        menuBtn.addEventListener('click', () => {
-          menu.classList.toggle('hidden');
-        });
-        
-        // Close when clicking outside
-        document.addEventListener("click", (event) => {
-                if (!button.contains(event.target) && !menu.contains(event.target)) {
-                    menu.classList.add("hidden");
-                }
+        (function() {
+          const menuBtn = document.getElementById('menu-btn');
+          const mobileMenu = document.getElementById('menu');
+          
+          if (menuBtn && mobileMenu) { 
+            menuBtn.addEventListener('click', () => {
+              mobileMenu.classList.toggle('hidden');
             });
+        
+            document.addEventListener("click", (event) => {
+              if (menuBtn && mobileMenu && !menuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
+                mobileMenu.classList.add("hidden");
+              }
+            });
+          }
+        })();
       </script>
     {% endblock %}
 </body>

@@ -1,0 +1,18 @@
+{% extends 'public/base.html' %}
+{% load static %}
+{% block content %}
+<!-- container -->
+<div class="px-20 mt-20 flex p-20 justify-between items-center h-[calc(100vh-5rem)]" style="background-color: #FFE5E5;">
+    <h1 class="text-2xl font-bold mb-4 text-center">Image Gallery</h1>
+
+    <div class="grid grid-cols-3 gap-4">
+        {% for image in images %}
+            <div class="p-2 bg-white shadow-md rounded-md">
+                <img src="{{ image.image.url }}" class="w-full h-48 object-cover rounded-md">
+            </div>
+        {% empty %}
+            <p class="text-center col-span-3 text-gray-500">No images uploaded yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

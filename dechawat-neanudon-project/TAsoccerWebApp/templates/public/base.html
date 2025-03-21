@@ -4,11 +4,12 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google" content="notranslate">
+    <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
     <title>{% block title %}T.A.SOCCER{% endblock %}</title>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'output.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -26,9 +27,9 @@
                 <ul class="flex justify-between items-center gap-7 text-lg">
                     <li><a href="{% url 'home-th' %}" class="hover:text-red-600">หน้าหลัก</a></li>
                     <li><a href="{% url 'aboutus' %}" class="hover:text-red-600">เกี่ยวกับเรา</a></li>
-                    <li><a href="#" class="hover:text-red-600">กิจกรรม</a></li>
-                    <li><a href="#" class="hover:text-red-600">แกลอรี่</a></li>
-                    <li><a href="#" class="hover:text-red-600">ติดต่อเรา</a></li>
+                    <li><a href="#" class="hover:text-red-600">ราคาและการจอง</a></li>
+                    <li><a href="{% url 'gallery' %}" class="hover:text-red-600">แกลอรี่</a></li>
+                    <li><a href="{% url 'contactUs' %}" class="hover:text-red-600">ติดต่อเรา</a></li>
                 </ul>
             </div>
             <!-- right login button -->

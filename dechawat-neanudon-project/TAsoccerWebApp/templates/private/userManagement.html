@@ -1,0 +1,192 @@
+{% extends 'private/base.html' %}
+{% block content %}
+<main class="flex-1 p-6">
+    <!-- User Management Table -->
+    <div class="mt-6 bg-white p-4 rounded-lg shadow " style="padding: 10px;">
+        <h2 class="text-xl font-semibold ">User Management</h2>
+        <button onclick="addRow()" class="mt-2 mb-2 px-2 bg-green-500 text-white rounded-md" style="cursor: pointer;">Add</button>
+        <table id="userTable" class="w-full border-collapse border border-gray-300" >
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border p-2">ID</th>
+                    <th class="border p-2">Username</th>
+                    <th class="border p-2">Email</th>
+                    <th class="border p-2">Phone</th>
+                    <th class="border p-2">Role</th>
+                    <th class="border p-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="">
+                    <!-- user ID -->
+                    <td class="border p-2">{{user.id}}</td> 
+                    <!-- username -->
+                    <td class="border p-2">
+                        <span id="username-{{user.id}}">{{user.username}}</span>
+                        <input type="text" id="edit-username-{{user.id}}" value="{{ user.username }}" class="hidden py-1 border rounded-lg">
+                    </td>
+                    <!-- email -->
+                    <td class="border p-2">
+                        <span id="email-{{user.id}}">{{user.email}}</span>
+                        <input type="email" id="edit-email-{{user.id}}" value="{{ user.email }}" class="hidden py-1 border rounded-lg">
+                    </td>
+                    <!-- phone number -->
+                    <td class="border p-2">
+                        <span id="phoneNumber-{{user.id}}">{{user.phone_number}}</span>
+                        <input type="tel" id="edit-phoneNumber-{{user.id}}" value="{{ user.phone_number }}" class="hidden py-1 border rounded-lg">
+                    </td>
+                    <!-- role -->
+                    <td class="border p-2" style="text-align: center;">
+                        <span id="role-{{user.id}}">
+                            {% if user.is_superuser %}
+                                Admin
+                            {% else %}
+                                User
+                            {% endif %}
+                        </span>
+                        <select id="edit-role-{{ user.id }}" class="hidden border rounded" style="cursor: pointer;">
+                            <option value="user" {% if not user.is_superuser %}selected{% endif %}>User</option>
+                            <option value="admin" {% if user.is_superuser %}selected{% endif %}>Admin</option>
+                        </select>    
+                    </td>
+                    <!-- edit button -->
+                    <td class="border p-2" style="text-align: center;">
+                        <button onclick="editRow({{ user.id }})" id="edit-btn-{{ user.id }}" class="px-2 rounded" style="background-color: red; cursor: pointer;">Edit</button>
+                        <button onclick="saveRow({{ user.id }})" id="save-btn-{{ user.id }}" class="hidden px-2 rounded" style="background-color: green; cursor: pointer;">Save</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+{% endblock %}
+{% block extra_js %}
+<script>
+    function editRow(userId) {
+        // Hide text spans and show input fields
+        document.getElementById(`username-${userId}`).classList.add("hidden");
+        document.getElementById(`email-${userId}`).classList.add("hidden");
+        document.getElementById(`phoneNumber-${userId}`).classList.add("hidden");
+        document.getElementById(`role-${userId}`).classList.add("hidden");
+
+        document.getElementById(`edit-username-${userId}`).classList.remove("hidden");
+        document.getElementById(`edit-email-${userId}`).classList.remove("hidden");
+        document.getElementById(`edit-phoneNumber-${userId}`).classList.remove("hidden");
+        document.getElementById(`edit-role-${userId}`).classList.remove("hidden");
+
+        // Change button states
+        document.getElementById(`edit-btn-${userId}`).classList.add("hidden");
+        document.getElementById(`save-btn-${userId}`).classList.remove("hidden");
+    }
+
+    function saveRow(userId) { //function for save dont know if it work or not
+        // // Get updated values
+        // let newUsername = document.getElementById(`edit-username-${userId}`).value;
+        // let newEmail = document.getElementById(`edit-email-${userId}`).value;
+        // let newRole = document.getElementById(`edit-role-${userId}`).value;
+        
+        // // Send updated data to the backend using AJAX (Optional)
+        // fetch(`/update-user/${userId}/`, {
+        //     method: "POST",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         "X-CSRFToken": getCSRFToken()
+        //     },
+        //     body: JSON.stringify({
+        //         username: newUsername,
+        //         email: newEmail,
+        //         is_superuser: newRole === "admin"
+        //     })
+        // })
+        // .then(response => response.json())
+        // .then(data => {
+        //     if (data.success) {
+        //         // Update text spans with new values
+        //         document.getElementById(`username-${userId}`).textContent = newUsername;
+        //         document.getElementById(`email-${userId}`).textContent = newEmail;
+        //         document.getElementById(`role-${userId}`).innerHTML = newRole === "admin"
+        //             ? "<strong style='color: red;'>Admin</strong>"
+        //             : "<strong style='color: blue;'>User</strong>";
+
+        //         // Hide input fields and show text spans
+                 document.getElementById(`username-${userId}`).classList.remove("hidden");
+                 document.getElementById(`email-${userId}`).classList.remove("hidden");
+                 document.getElementById(`phoneNumber-${userId}`).classList.remove("hidden");
+                 document.getElementById(`role-${userId}`).classList.remove("hidden");
+
+                 document.getElementById(`edit-username-${userId}`).classList.add("hidden");
+                 document.getElementById(`edit-email-${userId}`).classList.add("hidden");
+                 document.getElementById(`edit-phoneNumber-${userId}`).classList.add("hidden");
+                 document.getElementById(`edit-role-${userId}`).classList.add("hidden");
+
+                 // Restore button states
+                 document.getElementById(`edit-btn-${userId}`).classList.remove("hidden");
+                 document.getElementById(`save-btn-${userId}`).classList.add("hidden");
+        //     } else {
+        //         alert("Failed to update user!");
+        //     }
+        // });
+    }
+
+    // // Function to get CSRF Token
+    // function getCSRFToken() {
+    //     let cookies = document.cookie.split(';');
+    //     for (let cookie of cookies) {
+    //         let [name, value] = cookie.trim().split('=');
+    //         if (name === 'csrftoken') {
+    //             return value;
+    //         }
+    //     }
+    //     return '';
+    //}
+    function addRow() {
+    let table = document.getElementById("userTable");
+    let rowCount = table.rows.length;  // Get the number of rows
+    let newRow = table.insertRow(rowCount);  // Insert a new row at the end
+    newRow.id = `row-new-${rowCount}`;  // Unique ID for new row
+
+    newRow.innerHTML = `
+        <td class="border p-2">New</td>
+        <td class="border p-2">
+            <input type="text" id="new-username-${rowCount}" placeholder="Enter username">
+        </td>
+        <td class="border p-2">
+            <input type="email" id="new-email-${rowCount}" placeholder="Enter email">
+        </td>
+        <td class="border p-2">
+            <input type="tel" id="new-email-${rowCount}" placeholder="Enter phone">
+        </td>
+        <td class="border p-2">
+            <select id="new-role-${rowCount}">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+        </td>
+        <td class="border p-2">
+            <button onclick="saveNewRow(${rowCount})">Save</button>
+            <button onclick="removeRow(${rowCount})">Cancel</button>
+        </td>
+    `;
+}
+
+    // Function to remove a newly added row
+    function removeRow(rowId) {
+        let row = document.getElementById(`row-new-${rowId}`);
+        row.remove();
+    }
+
+    // Function to handle saving (for now, it just logs input values)
+    function saveNewRow(rowId) {
+        let username = document.getElementById(`new-username-${rowId}`).value;
+        let email = document.getElementById(`new-email-${rowId}`).value;
+        let role = document.getElementById(`new-role-${rowId}`).value;
+
+        console.log("New User:", { username, email, role });
+        alert("User added (this is just a frontend)");
+    }
+
+</script>
+
+{% endblock %}
