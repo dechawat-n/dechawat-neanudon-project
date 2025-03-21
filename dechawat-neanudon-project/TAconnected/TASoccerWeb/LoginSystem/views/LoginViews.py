@@ -144,12 +144,16 @@ def admin_dashboard(request):
         return logged_in  # Return the response immediately
     
     user_count = User.objects.count()  # Get all users
+    reservation_count = Reservation.objects.count()
+    pending_count = Reservation.objects.filter(status='pending').count()
 
     context = {
         'logged_in': logged_in['loggedin'],
         'user': logged_in['user'],
         'user_count': user_count,  # Pass users to the template
         'reservation': reservation,
+        'reservation_count': reservation_count,
+        'pending_count': pending_count,
     }
     return render(request, 'private/dashboard.html', context)
 
